@@ -25,7 +25,7 @@ jobs:
         file: ./Dockerfile
         push: true
 
-        tags: ${{ secrets.DOCKER_USERNAME }}/cleanstarter:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/liveauction:v1
 
   deploy-to-server:
     needs: build-and-push 
