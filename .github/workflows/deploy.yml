@@ -47,7 +47,7 @@ jobs:
           cat <<EOF > docker-compose.yml
           services:
             api:
-              image: ${{ secrets.DOCKER_USERNAME }}/cleanstarter:latest
+              image: ${{ secrets.DOCKER_USERNAME }}/liveauction:v1
               container_name: liveauction_api
               restart: always
               ports:
@@ -58,7 +58,7 @@ jobs:
                 - ASPNETCORE_URLS=http://+:8080
           EOF
           
-          docker pull ${{ secrets.DOCKER_USERNAME }}/cleanstarter:latest
+          docker pull ${{ secrets.DOCKER_USERNAME }}/liveauction:v1
 
           docker compose down
           docker compose up -d
