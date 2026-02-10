@@ -68,7 +68,7 @@ try
     app.UseSerilogRequestLogging();
 
     app.UseMiddleware<GlobalErrorHandlerMiddleware>();
-
+    app.UseStaticFiles();
     app.UseResponseCompression();
     app.MapOpenApi();
     app.MapScalarApiReference();
