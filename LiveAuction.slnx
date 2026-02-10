@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="LiveAuction/LiveAuction.API/LiveAuction.API.csproj" />
+  <Project Path="LiveAuction/LiveAuction.Application/LiveAuction.Application.csproj" />
+  <Project Path="LiveAuction/LiveAuction.Core/LiveAuction.Core.csproj" />
+  <Project Path="LiveAuction/LiveAuction.Infrastructure/LiveAuction.Infrastructure.csproj" />
+  <Project Path="LiveAuction/LiveAuction.UnitTests/LiveAuction.UnitTests.csproj" />
+</Solution>

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/tests/">
+    <Project Path="LiveAuction.UnitTests/LiveAuction.UnitTests.csproj" Id="dc083c71-c2fb-41db-8fa0-89dd5c8f8ade" />
+  </Folder>
+  <Project Path="LiveAuction.api/LiveAuction.API.csproj" />
+  <Project Path="LiveAuction.Application/LiveAuction.Application.csproj" />
+  <Project Path="LiveAuction.Core/LiveAuction.Core.csproj" />
+  <Project Path="LiveAuction.Infrastructure/LiveAuction.Infrastructure.csproj" />
+</Solution>
