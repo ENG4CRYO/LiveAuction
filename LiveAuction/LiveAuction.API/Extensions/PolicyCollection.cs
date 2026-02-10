@@ -21,18 +21,26 @@ namespace LiveAuction.API.Extensions
                 policy.AddStrictTransportSecurity(31536000, true, true)
                       .AddContentSecurityPolicy(csp =>
                       {
-                          csp.AddScriptSrc()
-                             .Self()
-                             .UnsafeInline()
-                             .UnsafeEval();
-                          csp.AddStyleSrc()
-                             .Self()
-                             .UnsafeInline();
+        
                           csp.AddDefaultSrc().Self();
-                          csp.AddScriptSrc().Self();
-                          csp.AddStyleSrc().Self();
+
+                        
                           csp.AddImgSrc().Self().From("data:");
                           csp.AddFontSrc().Self().From("data:");
+
+                       
+                          csp.AddConnectSrc().Self();
+
+     
+                          csp.AddScriptSrc()
+                             .Self()            
+                             .UnsafeInline()   
+                             .UnsafeEval();   
+
+                          // 5. الستايلات
+                          csp.AddStyleSrc()
+                             .Self()
+                             .UnsafeInline();    
                       });
             }
 
