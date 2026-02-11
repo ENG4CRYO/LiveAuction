@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Scalar.AspNetCore;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using Microsoft.OpenApi;
 
 SerilogExtension.SetupBootstrapLogger();
 
@@ -25,7 +26,17 @@ try
     builder.Services.AddApiResponseCompression();
 
 
-    builder.Services.AddOpenApi();
+    builder.Services.AddOpenApi(options =>
+    {
+        options.AddDocumentTransformer((document, context, cancellationToken) =>
+        {
+            document.Servers = new List<OpenApiServer>
+            {
+                new OpenApiServer { Url = "https://apiservice.ddns.net" }
+            };
+            return Task.CompletedTask;
+        });
+    });
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddInfrastructureService(builder.Configuration);
@@ -84,7 +95,7 @@ try
 
     app.UseHttpsRedirection();
 
-    //app.UseSecurityHeaders(PolicyCollection.policyCollection(app));
+    app.UseSecurityHeaders(PolicyCollection.policyCollection(app));
     app.UseGlobalHealthChecks();
     app.UseRateLimiter();
     app.UseAuthentication();
