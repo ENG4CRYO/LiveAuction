@@ -6,10 +6,10 @@ using LiveAuction.Application.Common;
 using LiveAuction.Application.Extensions;
 using LiveAuction.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
-using Microsoft.OpenApi;
 
 SerilogExtension.SetupBootstrapLogger();
 
