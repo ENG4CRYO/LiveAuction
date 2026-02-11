@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace LiveAuction.API.Controllers.V1
 {
     [ApiController]
-    [Route("api/v{version:apiVersion}/[Controller]")]
     [Route("api/[Controller]")]
-
     [ApiVersion("1.0")]
     public class AuthController : ControllerBase
     {

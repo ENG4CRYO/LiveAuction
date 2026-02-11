@@ -12,7 +12,7 @@ namespace LiveAuction.Application.Validators
         {
             RuleFor(x => x.UserName).
                 NotEmpty().WithMessage("User Name Is Required")
-                .Length(4, 10).WithMessage("The User Name Length Must Be Between 3 And 10");
+                .Length(4, 10).WithMessage("The User Name Length Must Be Between 4 And 10");
 
             RuleFor(x => x.Email).
                 NotEmpty().WithMessage("Email Is Required")

@@ -6,7 +6,6 @@ namespace LiveAuction.api.Controllers.V1
 {
     [Authorize]
     [ApiController]
-    [Route("api/v{version:apiVersion}/[Controller]")]
     [Route("api/[Controller]")]
     [ApiVersion("1.0")]
     public class TestController : ControllerBase
