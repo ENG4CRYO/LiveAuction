@@ -84,7 +84,7 @@ try
 
     app.UseHttpsRedirection();
 
-    app.UseSecurityHeaders(PolicyCollection.policyCollection(app));
+    //app.UseSecurityHeaders(PolicyCollection.policyCollection(app));
     app.UseGlobalHealthChecks();
     app.UseRateLimiter();
     app.UseAuthentication();

@@ -37,7 +37,6 @@ namespace LiveAuction.API.Extensions
                              .UnsafeInline()   
                              .UnsafeEval();   
 
-                          // 5. الستايلات
                           csp.AddStyleSrc()
                              .Self()
                              .UnsafeInline();    
