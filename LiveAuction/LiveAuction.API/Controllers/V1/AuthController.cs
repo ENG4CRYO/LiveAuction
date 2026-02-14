@@ -3,12 +3,14 @@ using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AuthModel;
 using LiveAuction.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LiveAuction.API.Controllers.V1
 {
     [ApiController]
     [Route("api/[Controller]")]
     [ApiVersion("1.0")]
+    [EnableRateLimiting("AuthLimiter")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;

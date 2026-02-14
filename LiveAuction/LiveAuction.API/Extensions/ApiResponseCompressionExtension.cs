@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 
 namespace LiveAuction.api.Extensions
 {
-    public static class ApiResponseCompression
+    public static class ApiResponseCompressionExtension
     {
         public static IServiceCollection AddApiResponseCompression(this IServiceCollection services)
         {

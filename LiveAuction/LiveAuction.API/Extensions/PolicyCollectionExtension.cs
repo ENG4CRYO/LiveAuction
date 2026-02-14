@@ -2,7 +2,7 @@
 
 namespace LiveAuction.API.Extensions
 {
-    public static class PolicyCollection
+    public static class PolicyCollectionExtension
     {
         public static HeaderPolicyCollection policyCollection(WebApplication app)
         {

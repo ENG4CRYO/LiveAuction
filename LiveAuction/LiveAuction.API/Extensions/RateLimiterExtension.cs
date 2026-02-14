@@ -25,8 +25,22 @@ namespace LiveAuction.api.Extensions
 
                     return RateLimitPartition.GetFixedWindowLimiter(partitionKey: partitionKey, factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 20,
-                        Window = TimeSpan.FromSeconds(10),
+                        PermitLimit = 100,
+                        Window = TimeSpan.FromSeconds(60),
+                        QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                        QueueLimit = 0
+                    });
+                });
+
+                options.AddPolicy("AuthLimiter", httpContext =>
+                {
+                    var remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
+                    var partitionKey = !string.IsNullOrEmpty(remoteIpAddress) ? remoteIpAddress : "LocalHostUser";
+
+                    return RateLimitPartition.GetFixedWindowLimiter(partitionKey: partitionKey, factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 5,
+                        Window = TimeSpan.FromSeconds(30),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         QueueLimit = 0
                     });

@@ -22,21 +22,10 @@ try
     builder.RegisterSerilog();
     builder.Services.AddGlobalRateLimiter();
     builder.Services.AddGlobalCors(builder.Configuration);
-    builder.Services.AddGlobalHealthChecks(builder.Configuration);
+    builder.Services.AddGlobalHealthChecks();
     builder.Services.AddApiResponseCompression();
 
-
-    builder.Services.AddOpenApi(options =>
-    {
-        options.AddDocumentTransformer((document, context, cancellationToken) =>
-        {
-            document.Servers = new List<OpenApiServer>
-            {
-                new OpenApiServer { Url = "https://apiservice.ddns.net" }
-            };
-            return Task.CompletedTask;
-        });
-    });
+    builder.Services.AddOpenApiConfig(builder.Configuration);
     builder.Services.AddEndpointsApiExplorer();
 
     builder.Services.AddInfrastructureService(builder.Configuration);
@@ -51,7 +40,11 @@ try
         options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
     });
 
+
+
     var app = builder.Build();
+
+
     app.UseForwardedHeaders(new ForwardedHeadersOptions
     {
         ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor |
@@ -95,12 +88,12 @@ try
 
     app.UseHttpsRedirection();
 
-    app.UseSecurityHeaders(PolicyCollection.policyCollection(app));
+    app.UseSecurityHeaders(PolicyCollectionExtension.policyCollection(app));
     app.UseGlobalHealthChecks();
     app.UseRateLimiter();
     app.UseAuthentication();
     app.UseAuthorization();
-    app.MapControllers().RequireRateLimiting("IpLimiter");
+    app.MapControllers();
 
     app.Run();
 }

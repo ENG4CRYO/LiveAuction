@@ -7,7 +7,7 @@ namespace LiveAuction.api.Extensions
 {
     public static class HealthCheckExtension
     {
-        public static IServiceCollection AddGlobalHealthChecks(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddGlobalHealthChecks(this IServiceCollection services)
         {
             services.AddHealthChecks()
 

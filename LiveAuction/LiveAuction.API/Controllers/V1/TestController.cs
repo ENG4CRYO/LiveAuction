@@ -1,6 +1,7 @@
 ﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace LiveAuction.api.Controllers.V1
 {
@@ -8,6 +9,7 @@ namespace LiveAuction.api.Controllers.V1
     [ApiController]
     [Route("api/[Controller]")]
     [ApiVersion("1.0")]
+    [EnableRateLimiting("IpLimiter")]
     public class TestController : ControllerBase
     {
         [HttpGet("protected")]
