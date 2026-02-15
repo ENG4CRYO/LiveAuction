@@ -138,7 +138,7 @@ namespace LiveAuction.Application.Services
             if (storedToken == null)
                 return ApiResponse<AuthModel>.Failure("Invalid refresh token");
 
-            var user = await _userManager.FindByIdAsync(storedToken.UserId);
+            var user = await _userManager.FindByIdAsync(storedToken.UserId.ToString());
             if (user == null) return ApiResponse<AuthModel>.Failure("User not found");
 
             if (storedToken.IsRevoked)

@@ -22,7 +22,7 @@ namespace LiveAuction.Core.Entites.AuthEntites
         public bool IsRevoked => Revoked != null;
 
         public bool IsActive => !IsRevoked && !IsExpired;
-        public string UserId { get; set; } = string.Empty;
+        public Guid UserId { get; set; }
         public ApplicationUser User { get; set; } = default!;
 
 

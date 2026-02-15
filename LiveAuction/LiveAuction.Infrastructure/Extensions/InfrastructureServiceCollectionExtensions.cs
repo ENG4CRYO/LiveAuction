@@ -27,7 +27,7 @@ namespace LiveAuction.Infrastructure.Extensions
                 throw new InvalidOperationException("Connection string 'LocalDb' not found.");
             }
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
+            services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
                  .AddEntityFrameworkStores<AppDbContext>();
 
             services.AddDbContext<AppDbContext>(options =>

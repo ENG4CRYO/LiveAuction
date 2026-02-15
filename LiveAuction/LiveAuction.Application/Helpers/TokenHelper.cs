@@ -39,7 +39,7 @@ namespace LiveAuction.Application.Helpers
                 new Claim(JwtRegisteredClaimNames.Sub, user.UserName!),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-                new Claim("uid", user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim("FirstName", user.FirstName),
                 new Claim("LastName", user.LastName)
             }.Union(userClaims).Union(roleClaims);
@@ -74,7 +74,7 @@ namespace LiveAuction.Application.Helpers
 
         }
 
-        public async Task ManageUserTokensAsync(IGenericRepository<RefreshToken> _refreshTokenRepo, string userId)
+        public async Task ManageUserTokensAsync(IGenericRepository<RefreshToken> _refreshTokenRepo, Guid userId)
         {
             var expiredTokens = await _refreshTokenRepo.ListAsync(t => t.UserId == userId && t.Expires <= DateTime.UtcNow)
                 ?? Enumerable.Empty<RefreshToken>(); ;

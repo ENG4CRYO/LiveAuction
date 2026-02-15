@@ -15,8 +15,8 @@ namespace LiveAuction.Infrastructure.Migrations
                columns: new[] { "Id", "Name", "NormalizedName", "ConcurrencyStamp" },
                values: new object[,]
                {
-                    { "1", AspRoles.Admin, AspRoles.Admin.ToUpper(), Guid.NewGuid().ToString() },
-                    { "2", AspRoles.User, AspRoles.User.ToUpper(), Guid.NewGuid().ToString() }
+                    { Guid.NewGuid(), AspRoles.Admin, AspRoles.Admin.ToUpper(), Guid.NewGuid().ToString() },
+                    { Guid.NewGuid(), AspRoles.User, AspRoles.User.ToUpper(), Guid.NewGuid().ToString() }
                }
                );
 
