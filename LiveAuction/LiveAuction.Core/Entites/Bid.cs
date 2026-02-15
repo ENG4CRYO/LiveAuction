@@ -9,9 +9,9 @@ namespace LiveAuction.Core.Entites
     {
         public Guid Id { get; set; }
         public Guid AuctionId { get; set; }
-        public Auction Auction { get; set; } = new Auction();
+        public Auction Auction { get; set; } = default!;
         public Guid BidderId { get; set; }
-        public ApplicationUser Bidder { get; set; } = new ApplicationUser();
+        public ApplicationUser Bidder { get; set; } = default!;
         public decimal Amount { get; set; }
         public DateTime PlacedAt { get; set; }
     }
