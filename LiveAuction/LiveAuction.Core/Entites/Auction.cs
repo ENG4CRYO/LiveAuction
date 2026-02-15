@@ -20,7 +20,7 @@ namespace LiveAuction.Core.Entites
         public decimal? CurrentPrice { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public EnAuctionStatus Status { get; set; }
-        public string RowVersion { get; set; } = string.Empty;
+        public uint RowVersion { get; set; }
 
         public ICollection<Bid> Bids { get; set; } = default!;
     }
