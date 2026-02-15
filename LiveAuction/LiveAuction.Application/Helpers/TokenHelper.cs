@@ -40,7 +40,8 @@ namespace LiveAuction.Application.Helpers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Email, user.Email!),
                 new Claim("uid", user.Id),
-                new Claim("fullName", user.FullName)
+                new Claim("FirstName", user.FirstName),
+                new Claim("LastName", user.LastName)
             }.Union(userClaims).Union(roleClaims);
 
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));

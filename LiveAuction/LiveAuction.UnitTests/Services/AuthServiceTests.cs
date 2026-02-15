@@ -71,7 +71,8 @@ namespace LiveAuction.UnitTests.Services
             {
                 Email = "exsiting@gmail.com",
                 Password = "Password123!",
-                FullName = "Test User",
+                FirstName = "Test User",
+                LastName = "Test User",
                 UserName = "TestUser"
             };
 
@@ -97,7 +98,8 @@ namespace LiveAuction.UnitTests.Services
             {
                 Email = "Test@gmail.com",
                 Password = "Password123!",
-                FullName = "Test User",
+                FirstName = "Test User",
+                LastName = "Test User",
                 UserName = "TestUser"
             };
             _mockUserManager.Setup(x => x.FindByEmailAsync(registerModel.Email))
@@ -137,7 +139,8 @@ namespace LiveAuction.UnitTests.Services
             {
                 Email = "Test@gmail.com",
                 Password = "Password123!",
-                FullName = "Test User",
+                FirstName = "Test User",
+                LastName = "Test User",
                 UserName = "TestUser"
             };
             _mockUserManager.Setup(x => x.FindByEmailAsync(registerModel.Email)).
@@ -341,7 +344,8 @@ namespace LiveAuction.UnitTests.Services
                 {
                     UserName = "test user",
                     Email = "E@test.com",
-                    FullName = "test",
+                    FirstName = "test",
+                    LastName = "user",
                     ConcurrencyStamp = Guid.NewGuid().ToString()
 
                 });

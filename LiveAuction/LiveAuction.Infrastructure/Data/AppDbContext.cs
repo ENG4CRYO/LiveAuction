@@ -18,6 +18,10 @@ namespace LiveAuction.Infrastructure.Data
         }
 
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Auction> Auctions { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Bid> Bids { get; set; }
+
 
     }
 }

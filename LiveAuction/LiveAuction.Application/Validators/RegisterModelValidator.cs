@@ -22,9 +22,13 @@ namespace LiveAuction.Application.Validators
                 .Matches("[0-9]").WithMessage("Password Must Be Conatain Number")
                 .Matches(@"[\W_]").WithMessage("Password Must Be Contain A Special Character");
 
-            RuleFor(x => x.FullName)
-                .NotEmpty().WithMessage("Name Is Required")
+            RuleFor(x => x.FirstName)
+                .NotEmpty().WithMessage("First Name Is Required")
                 .MaximumLength(50).WithMessage("Name Is Too Long");
+
+            RuleFor(x => x.LastName)
+               .NotEmpty().WithMessage("Last Name Is Required")
+               .MaximumLength(50).WithMessage("Name Is Too Long");
         }
     }
 }
