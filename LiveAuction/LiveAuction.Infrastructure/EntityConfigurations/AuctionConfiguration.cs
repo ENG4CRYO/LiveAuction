@@ -27,8 +27,7 @@ namespace LiveAuction.Infrastructure.EntityConfigurations
                 .HasPrecision(18, 2);
 
             builder.Property(a => a.RowVersion)
-                 .IsRowVersion()
-                 .IsConcurrencyToken();
+                 .IsRowVersion();
 
             builder.HasOne(a => a.Seller)
                 .WithMany(u => u.Auctions)

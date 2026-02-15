@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LiveAuction.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260215182209_EditedRowVersionInAuctionTouint")]
-    partial class EditedRowVersionInAuctionTouint
+    [Migration("20260215182823_SeedRole")]
+    partial class SeedRole
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
