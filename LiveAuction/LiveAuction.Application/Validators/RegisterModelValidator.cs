@@ -10,9 +10,8 @@ namespace LiveAuction.Application.Validators
     {
         public RegisterModelValidator()
         {
-            RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email Is Required")
-                .EmailAddress().WithMessage("Invalid Email Format");
+            RuleFor(x => x.RegisterToken)
+                .NotEmpty().WithMessage("Register Token is required. Please verify your email first.");
 
             RuleFor(x => x.Password)
                 .NotEmpty().WithMessage("Password Is Required")

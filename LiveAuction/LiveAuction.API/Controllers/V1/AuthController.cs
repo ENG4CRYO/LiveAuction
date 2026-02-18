@@ -83,6 +83,32 @@ namespace LiveAuction.API.Controllers.V1
             return Ok(ApiResponse<string>.Success("Token revoked successfully"));
         }
 
+        [HttpPost("request-otp")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
+        [EndpointDescription("Sends an OTP to the provided email for registration")]
+        public async Task<IActionResult> RequestOtp([FromBody] OtpRequestModel model)
+        {
+            var result = await _authService.RequestOtpAsync(model);
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("verify-otp")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
+        [EndpointDescription("Verifies the OTP and returns a Register Token")]
+        public async Task<IActionResult> VerifyOtp([FromBody] OtpVerifyModel model)
+        {
+            var result = await _authService.VerifyOtpAsync(model);
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
 
     }
 }

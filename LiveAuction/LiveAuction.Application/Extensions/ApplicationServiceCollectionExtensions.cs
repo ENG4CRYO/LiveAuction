@@ -19,6 +19,7 @@ namespace LiveAuction.Application.Extensions
             services.AddScoped<JWT>();
             services.AddScoped<TokenHelper>();
             services.AddAutoMapper(cfg => cfg.AddProfile<AuthProfile>());
+            services.AddMemoryCache();
 
             services.AddValidatorsFromAssembly(typeof(ApplicationServiceCollectionExtensions).Assembly);
 

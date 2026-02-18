@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
-using AutoMapper;
+﻿using AutoMapper;
 using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AuthModel;
 using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Interfaces;
+using LiveAuction.Application.Models;
 using LiveAuction.Core.Entites;
 using LiveAuction.Core.Entites.AuthEntites;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 namespace LiveAuction.Application.Services
 {
@@ -23,12 +25,17 @@ namespace LiveAuction.Application.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
+        private readonly IMemoryCache _memoryCache;
+        private readonly IEmailQueue _emailQueue;
 
         public AuthService(UserManager<ApplicationUser> userManager,
         IOptions<JWT> jwt,
         IMapper mapper,
         IConfiguration configuration,
-        IGenericRepository<RefreshToken> refreshTokenRepo
+        IGenericRepository<RefreshToken> refreshTokenRepo,
+        IMemoryCache memoryCache,
+        IEmailService emailService,
+        IEmailQueue emailQueue
         )
         {
             _userManager = userManager;
@@ -37,6 +44,8 @@ namespace LiveAuction.Application.Services
             _configuration = configuration;
             _tokenHelper = new TokenHelper(_jwt, _userManager);
             _refreshTokenRepo = refreshTokenRepo;
+            _memoryCache = memoryCache;
+            _emailQueue = emailQueue;
 
         }
 
@@ -82,17 +91,23 @@ namespace LiveAuction.Application.Services
         {
             var ApiResponse = new ApiResponse<AuthModel>();
             var authModel = new AuthModel();
-            var user = await _userManager.FindByEmailAsync(registerModel.Email);
+            var verifiedEmail = await _tokenHelper.ExtractEmailFromRegisterToken(registerModel.RegisterToken);
 
-            if (user != null)
+            if (string.IsNullOrEmpty(verifiedEmail))
             {
-                authModel.IsAuthenticated = false;
-                ApiResponse.Data = authModel;
+                return ApiResponse<AuthModel>.Failure("Invalid or expired Register Token. Please verify your email again");
+            }
+
+            var userExists = await _userManager.FindByEmailAsync(verifiedEmail);
+            if (userExists != null)
+            {
                 return ApiResponse<AuthModel>.Failure("Email is already registered");
             }
 
             var newUser = _mapper.Map<ApplicationUser>(registerModel);
             newUser.ConcurrencyStamp = Guid.NewGuid().ToString();
+            newUser.Email = verifiedEmail;
+            newUser.UserName = verifiedEmail;
             var result = await _userManager.CreateAsync(newUser, registerModel.Password);
 
             if (!result.Succeeded)
@@ -105,7 +120,7 @@ namespace LiveAuction.Application.Services
                 }
                 ApiResponse.Data = authModel;
 
-                return ApiResponse<AuthModel>.Failure("Error occured while created account", errors);
+                return ApiResponse<AuthModel>.Failure("Error occured while created account");
             }
 
             await _userManager.AddToRoleAsync(newUser, "User");
@@ -195,6 +210,49 @@ namespace LiveAuction.Application.Services
             return ApiResponse<bool>.Success(true);
         }
 
+
+        public async Task<ApiResponse<string>> RequestOtpAsync(OtpRequestModel model)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null)
+            {
+                return ApiResponse<string>.Failure("Email is already registered");
+            }
+
+            var otp = new Random().Next(1000, 9999).ToString();
+
+            var cacheKey = $"OTP_{model.Email}";
+            _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
+
+            string emailBody = $@"
+        <h3>Welcome to LiveAuction!</h3>
+        <p>Your verification code is: <b style='font-size: 20px; color: blue;'>{otp}</b></p>
+        <p>This code is valid for 5 minutes.</p>";
+
+            await _emailQueue.QueueBackgroundEmailAsync(
+                 new EmailMetadata(model.Email, "LiveAuction Verification Code", emailBody));
+            return ApiResponse<string>.Success($"Code verfication sent to {model.Email}");
+        }
+
+        public async Task<ApiResponse<string>> VerifyOtpAsync(OtpVerifyModel model)
+        {
+            var cacheKey = $"OTP_{model.Email}";
+            if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))
+            {
+                return ApiResponse<string>.Failure("OTP has expired or does not exist");
+            }
+
+            if (storedOtp != model.Otp)
+            {
+                return ApiResponse<string>.Failure("Invalid OTP code");
+            }
+
+            _memoryCache.Remove(cacheKey);
+
+            var registerToken = await _tokenHelper.GenerateRegisterToken(model.Email);
+
+            return ApiResponse<string>.Success(registerToken, "OTP Verified. Use this token to complete registration");
+        }
 
     }
 }

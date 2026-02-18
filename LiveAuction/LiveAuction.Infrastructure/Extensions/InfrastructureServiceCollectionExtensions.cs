@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using LiveAuction.Application.Helpers;
+﻿using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Interfaces;
 using LiveAuction.Core.Entites;
+using LiveAuction.Core.Settings;
 using LiveAuction.Infrastructure.Data;
 using LiveAuction.Infrastructure.Repositories;
+using LiveAuction.Infrastructure.Services;
+using LiveAuction.Infrastructure.Services.Background;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace LiveAuction.Infrastructure.Extensions
 {
@@ -34,6 +37,14 @@ namespace LiveAuction.Infrastructure.Extensions
                 options.UseNpgsql(connectionString, b =>
                 b.MigrationsAssembly(typeof(InfrastructureServiceCollectionExtensions).Assembly.FullName)
                 ));
+
+            services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
+
+            services.AddTransient<IEmailService, EmailService>();
+
+            services.AddSingleton<IEmailQueue, EmailQueue>();
+
+            services.AddHostedService<EmailBackgroundWorker>();
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.Configure<JWT>(configuration.GetSection("JWT"));

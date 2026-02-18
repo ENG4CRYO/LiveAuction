@@ -107,6 +107,60 @@ namespace LiveAuction.Application.Helpers
             }
         }
 
+        public async Task<string> GenerateRegisterToken(string email)
+        {
+            var claims = new[]
+            {
+                new Claim(JwtRegisteredClaimNames.Email, email),
+                new Claim("purpose", "registration_only")
+            };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwt.Issuer,
+                audience: _jwt.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(5),
+                signingCredentials: creds
+                );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public async Task<string?> ExtractEmailFromRegisterToken(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();    
+            var key = Encoding.UTF8.GetBytes(_jwt.Key);
+
+            try
+            {
+                handler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwt.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwt.Audience,
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuerSigningKey = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+
+                var purpose = jwtToken.Claims.FirstOrDefault(x => x.Type == "purpose")?.Value;
+                if (purpose != "registration_only") return null;
+
+                return jwtToken.Claims.FirstOrDefault(
+                    x => x.Type == JwtRegisteredClaimNames.Email)?.Value;
+            }
+            catch
+            {
+                return null;
+            }
+        }
 
     }
 }
