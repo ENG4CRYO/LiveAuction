@@ -79,7 +79,7 @@ try
     app.MapScalarApiReference(options =>
     {
         options.WithTitle("LiveAuction API Documentation"); 
-        options.WithTheme(ScalarTheme.DeepSpace);
+        options.WithTheme(ScalarTheme.BluePlanet);
     });
 
     if (app.Environment.IsDevelopment())
