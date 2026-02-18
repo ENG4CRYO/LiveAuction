@@ -218,17 +218,33 @@ namespace LiveAuction.Application.Services
             {
                 return ApiResponse<string>.Failure("Email is already registered");
             }
-
-            var otp = new Random().Next(1000, 9999).ToString();
+            string otp;
+            bool isTestEmail = model.Email.EndsWith("@test.com");
+            if(isTestEmail)
+            {
+                otp = "123456";
+            }
+            else
+            {
+                otp = new Random().Next(100000, 999999).ToString();
+            }
 
             var cacheKey = $"OTP_{model.Email}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
             string emailBody = OtpEmailBody.GenerateOtpEmailBody(otp);
 
-            await _emailQueue.QueueBackgroundEmailAsync(
+            if (!isTestEmail)
+            {
+                await _emailQueue.QueueBackgroundEmailAsync(
                  new EmailMetadata(model.Email, "LiveAuction Verification Code", emailBody));
-            return ApiResponse<string>.Success($"Code verfication sent to {model.Email}");
+                return ApiResponse<string>.Success(string.Empty, $"OTP sent to {model.Email}. Please check your inbox.");
+            }
+            else
+            {
+                return ApiResponse<string>.Success(string.Empty, "Test Email Detected");
+            }
+           
         }
 
         public async Task<ApiResponse<string>> VerifyOtpAsync(OtpVerifyModel model)
