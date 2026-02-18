@@ -6,6 +6,7 @@ using LiveAuction.Application.Common;
 using LiveAuction.Application.Extensions;
 using LiveAuction.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Serilog;
@@ -75,7 +76,11 @@ try
     app.UseStaticFiles();
     app.UseResponseCompression();
     app.MapOpenApi();
-    app.MapScalarApiReference();
+    app.MapScalarApiReference(options =>
+    {
+        options.WithTitle("LiveAuction API Documentation"); 
+        options.WithTheme(ScalarTheme.DeepSpace);
+    });
 
     if (app.Environment.IsDevelopment())
     {
