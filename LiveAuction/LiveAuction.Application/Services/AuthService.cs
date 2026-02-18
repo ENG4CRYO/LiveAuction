@@ -224,10 +224,7 @@ namespace LiveAuction.Application.Services
             var cacheKey = $"OTP_{model.Email}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
-            string emailBody = $@"
-        <h3>Welcome to LiveAuction!</h3>
-        <p>Your verification code is: <b style='font-size: 20px; color: blue;'>{otp}</b></p>
-        <p>This code is valid for 5 minutes.</p>";
+            string emailBody = OtpEmailBody.GenerateOtpEmailBody(otp);
 
             await _emailQueue.QueueBackgroundEmailAsync(
                  new EmailMetadata(model.Email, "LiveAuction Verification Code", emailBody));
