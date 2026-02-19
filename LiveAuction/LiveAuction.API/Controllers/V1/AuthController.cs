@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.RateLimiting;
 namespace LiveAuction.API.Controllers.V1
 {
     [ApiController]
-    [Route("api/[Controller]")]
+    [Route("liveauction/[Controller]")]
     [ApiVersion("1.0")]
     [EnableRateLimiting("AuthLimiter")]
     public class AuthController : ControllerBase
