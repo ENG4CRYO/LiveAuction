@@ -16,5 +16,7 @@ namespace LiveAuction.Application.Interfaces
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
         Task<T?> GetAsync(Expression<Func<T, bool>> predicate);
+
+        Task UpdateRangeAsync(IEnumerable<T> entities);
     }
 }

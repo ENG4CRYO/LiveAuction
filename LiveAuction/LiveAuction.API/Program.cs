@@ -4,6 +4,7 @@ using LiveAuction.api.Middlewares;
 using LiveAuction.API.Extensions;
 using LiveAuction.Application.Common;
 using LiveAuction.Application.Extensions;
+using LiveAuction.Infrastructure.Data;
 using LiveAuction.Infrastructure.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -57,7 +58,7 @@ try
         var services = scope.ServiceProvider;
         try
         {
-            var context = services.GetRequiredService<LiveAuction.Infrastructure.Data.AppDbContext>();
+            var context = services.GetRequiredService<AppDbContext>();
             if (context.Database.GetPendingMigrations().Any())
             {
                 context.Database.Migrate();

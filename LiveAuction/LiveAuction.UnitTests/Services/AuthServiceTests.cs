@@ -12,6 +12,7 @@ using LiveAuction.Application.Profiles;
 using LiveAuction.Application.Services;
 using LiveAuction.Core.Entites;
 using LiveAuction.Core.Entites.AuthEntites;
+using LiveAuction.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +29,8 @@ namespace LiveAuction.UnitTests.Services
         private readonly Mock<IConfiguration> _mockConfiguration;
         private readonly Mock<IGenericRepository<RefreshToken>> _mockRefreshTokenRepo;
         private readonly Mock<IMemoryCache> _mockMemoryCashe;
+        private readonly Mock<IEmailQueue> _mockEmailQueue;
+        private readonly Mock<IEmailService> _mockEmailService;
 
         private readonly AuthService _authService;
 
@@ -38,6 +41,9 @@ namespace LiveAuction.UnitTests.Services
             _mockConfiguration = new Mock<IConfiguration>();
             _mockRefreshTokenRepo = new Mock<IGenericRepository<RefreshToken>>();
             _mockMemoryCashe = new Mock<IMemoryCache>();
+            _mockEmailQueue = new Mock<IEmailQueue>();
+            _mockEmailService = new Mock<IEmailService>();
+
 
             var config = new MapperConfiguration(cfg => cfg.AddProfile<AuthProfile>());
             _realMapper = config.CreateMapper();
@@ -57,7 +63,9 @@ namespace LiveAuction.UnitTests.Services
                 _realMapper,
                 _mockConfiguration.Object,
                 _mockRefreshTokenRepo.Object,
-                _mockMemoryCashe.Object
+                _mockMemoryCashe.Object,
+                _mockEmailService.Object,
+                _mockEmailQueue.Object
             );
         }
         private static Mock<UserManager<ApplicationUser>> MockUserManager()
@@ -66,108 +74,8 @@ namespace LiveAuction.UnitTests.Services
             return new Mock<UserManager<ApplicationUser>>(
                 store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         }
-        //#region RegisterAsync Tests
-        //[Fact]
-        //public async Task RegisterAsync_ShouldReturnFailure_WhenEmailAlreadyExists()
-        //{
-        //    //Arrange
-        //    var registerModel = new RegisterModel
-        //    {
-        //        Email = "exsiting@gmail.com",
-        //        Password = "Password123!",
-        //        FirstName = "Test User",
-        //        LastName = "Test User",
-        //        UserName = "TestUser"
-        //    };
 
-        //    _mockUserManager.Setup(x => x.FindByEmailAsync(registerModel.Email)).
-        //        ReturnsAsync(new ApplicationUser { Email = registerModel.Email });
-
-
-        //    //Act
-        //    var result = await _authService.RegisterAsync(registerModel);
-
-
-        //    //Assert
-        //    result.Succeeded.Should().BeFalse();
-        //    result.Message.Should().Be("Email is already registered");
-        //    result.Data.Should().BeNull();
-        //}
-
-        //[Fact]
-        //public async Task RegisterAsync_ShouldReturnSuccess_WhenRegistrationIsValid()
-        //{
-        //    //Arrange
-        //    var registerModel = new RegisterModel
-        //    {
-        //        Email = "Test@gmail.com",
-        //        Password = "Password123!",
-        //        FirstName = "Test User",
-        //        LastName = "Test User",
-        //        UserName = "TestUser"
-        //    };
-        //    _mockUserManager.Setup(x => x.FindByEmailAsync(registerModel.Email))
-        //        .ReturnsAsync((ApplicationUser?)null);
-
-        //    _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>())).
-        //       ReturnsAsync(IdentityResult.Success);
-
-        //    _mockUserManager.Setup(x => x.AddToRoleAsync(It.IsAny<ApplicationUser>(), "User")).
-        //       ReturnsAsync(IdentityResult.Success);
-
-        //    _mockUserManager.Setup(x => x.GetRolesAsync(It.IsAny<ApplicationUser>())).
-        //        ReturnsAsync(new List<string> { "User", "Admin" });
-        //    _mockUserManager.Setup(x => x.GetClaimsAsync(It.IsAny<ApplicationUser>())).
-        //        ReturnsAsync(new List<Claim>());
-
-
-        //    _mockRefreshTokenRepo.Setup(x => x.AddAsync(It.IsAny<RefreshToken>()))
-        //         .ReturnsAsync((RefreshToken r) => r);
-
-
-        //    //Act
-        //    var result = await _authService.RegisterAsync(registerModel);
-
-
-        //    //Assert
-        //    result.Succeeded.Should().BeTrue();
-        //    result.Message.Should().Be("User registered successfully");
-        //    result.Data.Should().NotBeNull();
-        //}
-
-        //[Fact]
-        //public async Task RegisterAsync_ShouldReturnFailure_WhenUserCreationFails()
-        //{
-        //    //Arrange
-        //    var registerModel = new RegisterModel
-        //    {
-        //        Email = "Test@gmail.com",
-        //        Password = "Password123!",
-        //        FirstName = "Test User",
-        //        LastName = "Test User",
-        //        UserName = "TestUser"
-        //    };
-        //    _mockUserManager.Setup(x => x.FindByEmailAsync(registerModel.Email)).
-        //        ReturnsAsync((ApplicationUser?)null);
-
-
-        //    _mockUserManager.Setup(x => x.CreateAsync(It.IsAny<ApplicationUser>(), registerModel.Password))
-        //        .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "User creation failed" }));
-
-
-        //    //Act
-        //    var result = await _authService.RegisterAsync(registerModel);
-
-
-        //    //Assert
-        //    result.Succeeded.Should().BeFalse();
-        //    result.Message.Should().Be("Error occured while created account");
-        //    result.Data.Should().BeNull();
-        //}
-
-
-
-        //#endregion
+         
 
         #region LoginAsync Tests
         [Fact]

@@ -59,5 +59,11 @@ namespace LiveAuction.Infrastructure.Repositories
             _context.Set<T>().RemoveRange(entities);
             await _context.SaveChangesAsync();
         }
+
+        public async Task UpdateRangeAsync(IEnumerable<T> entities)
+        {
+            _context.Set<T>().UpdateRange(entities);
+            await _context.SaveChangesAsync();
+        }
     }
 }

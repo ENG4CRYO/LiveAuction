@@ -60,8 +60,8 @@ namespace LiveAuction.Application.Services
                 ApiResponse.Data = authModel;
                 return ApiResponse<AuthModel>.Failure("Email or Password is incorrect");
             }
-
-            var jwtSecurityToken = await _tokenHelper.CreateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var jwtSecurityToken = await _tokenHelper.CreateJwtToken(user,roles);
             var tokenString = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
 
@@ -72,7 +72,6 @@ namespace LiveAuction.Application.Services
             await _refreshTokenRepo.AddAsync(refreshToken);
 
 
-            var roles = await _userManager.GetRolesAsync(user);
             authModel = _mapper.Map<AuthModel>(user);
 
             authModel.IsAuthenticated = true;
@@ -129,7 +128,8 @@ namespace LiveAuction.Application.Services
             newRefreshToken.UserId = newUser.Id;
             await _refreshTokenRepo.AddAsync(newRefreshToken);
 
-            var token = await _tokenHelper.CreateJwtToken(newUser);
+            var roles = new List<string>() { "User" };
+            var token = await _tokenHelper.CreateJwtToken(newUser,roles);
 
 
             authModel = _mapper.Map<AuthModel>(newUser);
@@ -138,7 +138,7 @@ namespace LiveAuction.Application.Services
             authModel.ExpiresOn = token.ValidTo;
             authModel.RefreshTokenExpiration = newRefreshToken.Expires;
             authModel.IsAuthenticated = true;
-            authModel.Roles = new List<string>() { "User" };
+            authModel.Roles = roles;
 
             return ApiResponse<AuthModel>.Success(authModel, "User registered successfully");
 
@@ -177,13 +177,14 @@ namespace LiveAuction.Application.Services
             await _refreshTokenRepo.UpdateAsync(storedToken);
             await _refreshTokenRepo.AddAsync(newRefreshToken);
 
-            var jwtSecurityToken = await _tokenHelper.CreateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var jwtSecurityToken = await _tokenHelper.CreateJwtToken(user, roles);
 
             var authModel = _mapper.Map<AuthModel>(user);
             authModel.IsAuthenticated = true;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
-            authModel.Roles = await _userManager.GetRolesAsync(user);
+            authModel.Roles = roles;
             authModel.RefreshToken = newRefreshToken.Token;
             authModel.RefreshTokenExpiration = newRefreshToken.Expires;
 

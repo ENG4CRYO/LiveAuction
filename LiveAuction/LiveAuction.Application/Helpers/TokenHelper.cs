@@ -21,11 +21,10 @@ namespace LiveAuction.Application.Helpers
             _jwt = jwt;
             _userManager = userManager;
         }
-        public async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user)
+        public async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user, IList<string> roles)
         {
 
             var userClaims = await _userManager.GetClaimsAsync(user);
-            var roles = await _userManager.GetRolesAsync(user);
 
             var roleClaims = new List<Claim>();
 
@@ -60,9 +59,7 @@ namespace LiveAuction.Application.Helpers
 
         public RefreshToken GenerateRefreshToken()
         {
-            var randomBytes = new byte[32];
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomBytes);
+            var randomBytes = RandomNumberGenerator.GetBytes(32);
 
             return new RefreshToken
             {
@@ -102,8 +99,8 @@ namespace LiveAuction.Application.Helpers
                 {
                     token.Revoked = DateTime.UtcNow;
                     token.ReasonRevoked = "Exceeded max active sessions";
-                    await _refreshTokenRepo.UpdateAsync(token);
                 }
+                await _refreshTokenRepo.UpdateRangeAsync(tokensToRevoke);
             }
         }
 
