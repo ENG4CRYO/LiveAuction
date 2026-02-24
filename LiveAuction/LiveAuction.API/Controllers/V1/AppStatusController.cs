@@ -1,4 +1,5 @@
-﻿using LiveAuction.Application.Common;
+﻿using Asp.Versioning;
+using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AppStatusModel;
 using LiveAuction.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +10,7 @@ namespace LiveAuction.API.Controllers.V1
 {
     [ApiController]
     [Route("liveauction/[Controller]")]
+    [ApiVersion("1.0")]
     [EnableRateLimiting("IpLimiter")]
     public class AppStatusController : ControllerBase
     {
