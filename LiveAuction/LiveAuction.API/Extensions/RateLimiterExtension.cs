@@ -26,7 +26,7 @@ namespace LiveAuction.api.Extensions
                     return RateLimitPartition.GetFixedWindowLimiter(partitionKey: partitionKey, factory: _ => new FixedWindowRateLimiterOptions
                     {
                         PermitLimit = 100,
-                        Window = TimeSpan.FromSeconds(60),
+                        Window = TimeSpan.FromSeconds(20),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         QueueLimit = 0
                     });

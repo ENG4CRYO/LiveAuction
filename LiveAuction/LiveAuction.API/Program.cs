@@ -2,6 +2,7 @@
 using LiveAuction.api.Factories;
 using LiveAuction.api.Middlewares;
 using LiveAuction.API.Extensions;
+using LiveAuction.API.Middlewares;
 using LiveAuction.Application.Common;
 using LiveAuction.Application.Extensions;
 using LiveAuction.Infrastructure.Data;
@@ -77,6 +78,7 @@ try
     app.UseStaticFiles();
     app.UseResponseCompression();
     app.MapOpenApi();
+
     app.MapScalarApiReference(options =>
     {
         options.WithTitle("LiveAuction API Documentation"); 
@@ -95,8 +97,9 @@ try
     app.UseHttpsRedirection();
 
     app.UseSecurityHeaders(PolicyCollectionExtension.policyCollection(app));
-    app.UseGlobalHealthChecks();
     app.UseRateLimiter();
+    app.UseGlobalHealthChecks();
+    app.UseMiddleware<AppVersionCheckMiddleware>();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
