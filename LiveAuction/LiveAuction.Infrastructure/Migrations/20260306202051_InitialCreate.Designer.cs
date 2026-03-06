@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LiveAuction.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260215182749_InitCreate")]
-    partial class InitCreate
+    [Migration("20260306202051_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -124,8 +124,8 @@ namespace LiveAuction.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<decimal?>("CurrentPrice")
                         .HasPrecision(18, 2)
@@ -178,11 +178,9 @@ namespace LiveAuction.Infrastructure.Migrations
 
             modelBuilder.Entity("LiveAuction.Core.Entites.AuthEntites.RefreshToken", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -248,11 +246,10 @@ namespace LiveAuction.Infrastructure.Migrations
 
             modelBuilder.Entity("LiveAuction.Core.Entites.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid")
+                        .HasDefaultValueSql("gen_random_uuid()");
 
                     b.Property<string>("Name")
                         .IsRequired()

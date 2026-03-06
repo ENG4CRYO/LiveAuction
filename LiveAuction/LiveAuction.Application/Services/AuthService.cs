@@ -3,6 +3,9 @@ using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AuthModel;
 using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Interfaces;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces.Read;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces.Write;
 using LiveAuction.Application.Models;
 using LiveAuction.Core.Entites;
 using LiveAuction.Core.Entites.AuthEntites;
@@ -24,32 +27,38 @@ namespace LiveAuction.Application.Services
         private readonly JWT _jwt;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
-        private readonly IGenericRepository<RefreshToken> _refreshTokenRepo;
+        private readonly IGenericWriteRepository<RefreshToken> _refreshTokenWriteRepo;
+        private readonly IGenericReadRepository<RefreshToken> _refreshTokenReadRepo;
         private readonly IMemoryCache _memoryCache;
         private readonly IEmailQueue _emailQueue;
+        private readonly IUnitOfWork _unitOfWork;   
 
         public AuthService(UserManager<ApplicationUser> userManager,
         IOptions<JWT> jwt,
         IMapper mapper,
         IConfiguration configuration,
-        IGenericRepository<RefreshToken> refreshTokenRepo,
+        IGenericWriteRepository<RefreshToken> refreshTokenWriteRepo,
+        IGenericReadRepository<RefreshToken> refreshTokenReadRepo,
         IMemoryCache memoryCache,
         IEmailService emailService,
-        IEmailQueue emailQueue
+        IEmailQueue emailQueue,
+        IUnitOfWork unitOfWork
         )
         {
             _userManager = userManager;
             _jwt = jwt.Value;
             _mapper = mapper;
             _configuration = configuration;
-            _tokenHelper = new TokenHelper(_jwt, _userManager);
-            _refreshTokenRepo = refreshTokenRepo;
+            _refreshTokenWriteRepo = refreshTokenWriteRepo;
+            _refreshTokenReadRepo = refreshTokenReadRepo;
             _memoryCache = memoryCache;
             _emailQueue = emailQueue;
+            _unitOfWork = unitOfWork;
+            _tokenHelper = new TokenHelper(_jwt, _userManager, _unitOfWork);
 
         }
 
-        public async Task<ApiResponse<AuthModel>> GetTokenAsync(TokenRequestModel tokenRequestModel)
+        public async Task<ApiResponse<AuthModel>> GetTokenAsync(TokenRequestModel tokenRequestModel,CancellationToken cancellationToken)
         {
             var ApiResponse = new ApiResponse<AuthModel>();
             var authModel = new AuthModel();
@@ -65,11 +74,12 @@ namespace LiveAuction.Application.Services
             var tokenString = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
 
 
-            await _tokenHelper.ManageUserTokensAsync(_refreshTokenRepo, user.Id);
+            await _tokenHelper.ManageUserTokensAsync(_refreshTokenWriteRepo,_refreshTokenReadRepo, user.Id,cancellationToken);
             var refreshToken = _tokenHelper.GenerateRefreshToken();
             refreshToken.UserId = user.Id;
 
-            await _refreshTokenRepo.AddAsync(refreshToken);
+            await _refreshTokenWriteRepo.AddAsync(refreshToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 
             authModel = _mapper.Map<AuthModel>(user);
@@ -86,7 +96,7 @@ namespace LiveAuction.Application.Services
 
         }
 
-        public async Task<ApiResponse<AuthModel>> RegisterAsync(RegisterModel registerModel)
+        public async Task<ApiResponse<AuthModel>> RegisterAsync(RegisterModel registerModel, CancellationToken cancellationToken)
         {
             var ApiResponse = new ApiResponse<AuthModel>();
             var authModel = new AuthModel();
@@ -126,7 +136,9 @@ namespace LiveAuction.Application.Services
 
             var newRefreshToken = _tokenHelper.GenerateRefreshToken();
             newRefreshToken.UserId = newUser.Id;
-            await _refreshTokenRepo.AddAsync(newRefreshToken);
+            await _refreshTokenWriteRepo.AddAsync(newRefreshToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
 
             var roles = new List<string>() { "User" };
             var token = await _tokenHelper.CreateJwtToken(newUser,roles);
@@ -144,10 +156,10 @@ namespace LiveAuction.Application.Services
 
         }
 
-        public async Task<ApiResponse<AuthModel>> RefreshTokenAsync(string refreshToken)
+        public async Task<ApiResponse<AuthModel>> RefreshTokenAsync(string refreshToken,CancellationToken cancellationToken)
         {
 
-            var storedToken = await _refreshTokenRepo.GetAsync(t => t.Token == refreshToken);
+            var storedToken = await _refreshTokenReadRepo.GetAsync(t => t.Token == refreshToken, cancellationToken);
 
 
             if (storedToken == null)
@@ -164,7 +176,7 @@ namespace LiveAuction.Application.Services
             if (!storedToken.IsActive)
                 return ApiResponse<AuthModel>.Failure("Refresh token expired");
 
-            await _tokenHelper.ManageUserTokensAsync(_refreshTokenRepo, user.Id);
+            await _tokenHelper.ManageUserTokensAsync(_refreshTokenWriteRepo, _refreshTokenReadRepo, user.Id, cancellationToken);
             var newRefreshToken = _tokenHelper.GenerateRefreshToken();
             newRefreshToken.UserId = user.Id;
 
@@ -174,8 +186,9 @@ namespace LiveAuction.Application.Services
             storedToken.ReplacedByToken = newRefreshToken.Token;
 
 
-            await _refreshTokenRepo.UpdateAsync(storedToken);
-            await _refreshTokenRepo.AddAsync(newRefreshToken);
+            await _refreshTokenWriteRepo.UpdateAsync(storedToken);
+            await _refreshTokenWriteRepo.AddAsync(newRefreshToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var roles = await _userManager.GetRolesAsync(user);
             var jwtSecurityToken = await _tokenHelper.CreateJwtToken(user, roles);
@@ -191,10 +204,10 @@ namespace LiveAuction.Application.Services
             return ApiResponse<AuthModel>.Success(authModel);
         }
 
-        public async Task<ApiResponse<bool>> RevokeTokenAsync(string token)
+        public async Task<ApiResponse<bool>> RevokeTokenAsync(string token,CancellationToken cancellationToken)
         {
 
-            var storedToken = await _refreshTokenRepo.GetAsync(t => t.Token == token);
+            var storedToken = await _refreshTokenReadRepo.GetAsync(t => t.Token == token, cancellationToken);
 
 
             if (storedToken == null)
@@ -205,14 +218,15 @@ namespace LiveAuction.Application.Services
                 storedToken.Revoked = DateTime.UtcNow;
                 storedToken.ReasonRevoked = "Revoked manually by user (Logout)";
 
-                await _refreshTokenRepo.UpdateAsync(storedToken);
+                await _refreshTokenWriteRepo.UpdateAsync(storedToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
             return ApiResponse<bool>.Success(true);
         }
 
 
-        public async Task<ApiResponse<string>> RequestOtpAsync(OtpRequestModel model)
+        public async Task<ApiResponse<string>> RequestOtpAsync(OtpRequestModel model, CancellationToken cancellationToken)
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null)
@@ -248,7 +262,7 @@ namespace LiveAuction.Application.Services
            
         }
 
-        public async Task<ApiResponse<string>> VerifyOtpAsync(OtpVerifyModel model)
+        public async Task<ApiResponse<string>> VerifyOtpAsync(OtpVerifyModel model, CancellationToken cancellationToken)
         {
             var cacheKey = $"OTP_{model.Email}";
             if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))

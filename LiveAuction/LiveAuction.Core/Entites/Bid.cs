@@ -1,11 +1,12 @@
 ﻿
+using LiveAuction.Core.Entites.BaseEntity;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace LiveAuction.Core.Entites
 {
-    public class Bid
+    public class Bid : IEntity
     {
         public Guid Id { get; set; }
         public Guid AuctionId { get; set; }

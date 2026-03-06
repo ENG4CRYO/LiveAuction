@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LiveAuction.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitCreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -62,8 +62,7 @@ namespace LiveAuction.Infrastructure.Migrations
                 name: "Categories",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
                     Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
@@ -181,8 +180,7 @@ namespace LiveAuction.Infrastructure.Migrations
                 name: "RefreshTokens",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Token = table.Column<string>(type: "text", nullable: false),
                     Expires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Created = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -212,7 +210,7 @@ namespace LiveAuction.Infrastructure.Migrations
                     SellerId = table.Column<Guid>(type: "uuid", nullable: false),
                     Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "character varying(1200)", maxLength: 1200, nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     StartAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     EndAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     StartingPrice = table.Column<decimal>(type: "numeric(18,2)", precision: 18, scale: 2, nullable: false),

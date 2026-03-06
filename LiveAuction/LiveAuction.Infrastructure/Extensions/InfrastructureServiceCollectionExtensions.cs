@@ -1,9 +1,14 @@
 ﻿using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Interfaces;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces.Read;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces.Write;
 using LiveAuction.Core.Entites;
 using LiveAuction.Core.Settings;
 using LiveAuction.Infrastructure.Data;
 using LiveAuction.Infrastructure.Repositories;
+using LiveAuction.Infrastructure.Repositories.Read;
+using LiveAuction.Infrastructure.Repositories.Write;
 using LiveAuction.Infrastructure.Services;
 using LiveAuction.Infrastructure.Services.Background;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -46,7 +51,9 @@ namespace LiveAuction.Infrastructure.Extensions
 
             services.AddHostedService<EmailBackgroundWorker>();
 
-            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IUnitOfWork,UnitOfWork>();
+            services.AddScoped(typeof(IGenericWriteRepository<>), typeof(GenericWriteRepository<>));
+            services.AddScoped(typeof(IGenericReadRepository<>), typeof(GenericReadRepository<>));
             services.Configure<JWT>(configuration.GetSection("JWT"));
             services.AddAuthentication(options =>
             {

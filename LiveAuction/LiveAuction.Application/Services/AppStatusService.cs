@@ -42,12 +42,20 @@ namespace LiveAuction.Application.Services
             var updateResult = await CheckUpdateRequiredAsync(currentVersion, os);
             if (updateResult != null)
                 return CreateSuccessResponse(updateResult, "Update required.");
+            var osStoreUrlKey = os switch
+            {
+                "android" => "AppStatus:StoreUrlAndroid",
+                "ios" => "AppStatus:StoreUrliOS",
+                _ => null
+            };
+            var storeUrl = _configuration.GetValue<string>($"{osStoreUrlKey}") ?? "";
 
             var okResult = new AppStatusResult
             {
                 IsMaintenance = false,
                 UpdateRequired = false,
                 IsBanned = false,
+                StoreUrl = storeUrl,
                 Message = "System is operational."
             };
 

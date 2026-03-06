@@ -24,9 +24,9 @@ namespace LiveAuction.API.Controllers.V1
         [EndpointDescription("It creates a new user account and returns the token and user details. It requires a unique email address.")]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterModel model, CancellationToken cancellationToken)
         {
-            var result = await _authService.RegisterAsync(model);
+            var result = await _authService.RegisterAsync(model, cancellationToken);
 
             if (!result.Succeeded)
                 return BadRequest(result);
@@ -38,9 +38,9 @@ namespace LiveAuction.API.Controllers.V1
         [EndpointDescription("Verifying user cridential,Issue Token and refresh token for user")]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Login([FromBody] TokenRequestModel model)
+        public async Task<IActionResult> Login([FromBody] TokenRequestModel model, CancellationToken cancellationToken)
         {
-            var result = await _authService.GetTokenAsync(model);
+            var result = await _authService.GetTokenAsync(model,cancellationToken);
 
             if (!result.Succeeded)
                 return BadRequest(result);
@@ -53,9 +53,9 @@ namespace LiveAuction.API.Controllers.V1
         [EndpointDescription("Verify refresh token, rovoke the refresh token, issue new refresh token")]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> RefreshToken([FromBody] RequestRefreshToken refreshToken)
+        public async Task<IActionResult> RefreshToken([FromBody] RequestRefreshToken refreshToken,CancellationToken cancellationToken)
         {
-            var result = await _authService.RefreshTokenAsync(refreshToken.Token);
+            var result = await _authService.RefreshTokenAsync(refreshToken.Token, cancellationToken);
 
             if (!result.Succeeded)
                 return BadRequest(result);
@@ -68,14 +68,14 @@ namespace LiveAuction.API.Controllers.V1
         [EndpointDescription("revoke the refresh token")]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
+        public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model,CancellationToken cancellationToken)
         {
 
 
             if (string.IsNullOrEmpty(model.Token))
                 return BadRequest(ApiResponse<string>.Failure("Token is required!"));
 
-            var result = await _authService.RevokeTokenAsync(model.Token);
+            var result = await _authService.RevokeTokenAsync(model.Token, cancellationToken);
 
             if (!result.Succeeded)
                 return BadRequest(result);
@@ -87,9 +87,9 @@ namespace LiveAuction.API.Controllers.V1
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
         [EndpointDescription("Sends an OTP to the provided email for registration")]
-        public async Task<IActionResult> RequestOtp([FromBody] OtpRequestModel model)
+        public async Task<IActionResult> RequestOtp([FromBody] OtpRequestModel model, CancellationToken cancellationToken)
         {
-            var result = await _authService.RequestOtpAsync(model);
+            var result = await _authService.RequestOtpAsync(model, cancellationToken);
             if (!result.Succeeded)
                 return BadRequest(result);
 
@@ -100,9 +100,9 @@ namespace LiveAuction.API.Controllers.V1
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
         [EndpointDescription("Verifies the OTP and returns a Register Token")]
-        public async Task<IActionResult> VerifyOtp([FromBody] OtpVerifyModel model)
+        public async Task<IActionResult> VerifyOtp([FromBody] OtpVerifyModel model, CancellationToken cancellationToken)
         {
-            var result = await _authService.VerifyOtpAsync(model);
+            var result = await _authService.VerifyOtpAsync(model, cancellationToken);
             if (!result.Succeeded)
                 return BadRequest(result);
 

@@ -4,7 +4,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using LiveAuction.Application.Interfaces;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces.Read;
+using LiveAuction.Application.Interfaces.RepositoryInterfaces.Write;
 using LiveAuction.Core.Entites;
 using LiveAuction.Core.Entites.AuthEntites;
 using Microsoft.AspNetCore.Identity;
@@ -16,10 +18,12 @@ namespace LiveAuction.Application.Helpers
     {
         private readonly JWT _jwt;
         private readonly UserManager<ApplicationUser> _userManager;
-        public TokenHelper(JWT jwt, UserManager<ApplicationUser> userManager)
+        private readonly IUnitOfWork _unitOfWork;
+        public TokenHelper(JWT jwt, UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
             _jwt = jwt;
             _userManager = userManager;
+            _unitOfWork = unitOfWork;
         }
         public async Task<JwtSecurityToken> CreateJwtToken(ApplicationUser user, IList<string> roles)
         {
@@ -71,19 +75,23 @@ namespace LiveAuction.Application.Helpers
 
         }
 
-        public async Task ManageUserTokensAsync(IGenericRepository<RefreshToken> _refreshTokenRepo, Guid userId)
+        public async Task ManageUserTokensAsync(IGenericWriteRepository<RefreshToken> _refreshTokenWriteRepo,
+            IGenericReadRepository<RefreshToken> _refreshTokenReadRepo
+            , Guid userId, CancellationToken cancellationToken)
         {
-            var expiredTokens = await _refreshTokenRepo.ListAsync(t => t.UserId == userId && t.Expires <= DateTime.UtcNow)
+            var expiredTokens = await _refreshTokenReadRepo.ListAsync(t => t.UserId == userId && t.Expires <= DateTime.UtcNow, cancellationToken)
                 ?? Enumerable.Empty<RefreshToken>(); ;
             if (expiredTokens.Any())
             {
-                await _refreshTokenRepo.DeleteRangeAsync(expiredTokens);
+                await _refreshTokenWriteRepo.DeleteRangeAsync(expiredTokens);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
 
             const int MaxActiveSessions = 5;
 
-            var activeTokens = await _refreshTokenRepo.ListAsync(t =>
-                t.UserId == userId && t.Revoked == null && t.Expires > DateTime.UtcNow);
+            var activeTokens = await _refreshTokenReadRepo.ListAsync(t =>
+                t.UserId == userId && t.Revoked == null && t.Expires > DateTime.UtcNow,
+                cancellationToken);
 
             if (activeTokens.Count >= MaxActiveSessions)
             {
@@ -100,7 +108,8 @@ namespace LiveAuction.Application.Helpers
                     token.Revoked = DateTime.UtcNow;
                     token.ReasonRevoked = "Exceeded max active sessions";
                 }
-                await _refreshTokenRepo.UpdateRangeAsync(tokensToRevoke);
+                await _refreshTokenWriteRepo.UpdateRangeAsync(tokensToRevoke);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
         }
 

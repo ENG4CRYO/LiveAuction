@@ -1,18 +1,19 @@
-﻿using LiveAuction.Core.Enums;
+﻿using LiveAuction.Core.Entites.BaseEntity;
+using LiveAuction.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace LiveAuction.Core.Entites
 {
-    public class Auction
+    public class Auction : IEntity
     {
         public Guid Id { get; set; }
         public Guid SellerId { get; set; }
         public ApplicationUser Seller { get; set; } = default!;
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        public int CategoryId { get; set; } 
+        public Guid CategoryId { get; set; } 
         public Category Category { get; set; } = default!;
         public DateTime StartAt { get; set; }
         public DateTime EndAt { get; set; }

@@ -1,12 +1,13 @@
-﻿using System;
+﻿using LiveAuction.Core.Entites.BaseEntity;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace LiveAuction.Core.Entites.AuthEntites
 {
-    public class RefreshToken
+    public class RefreshToken : IEntity
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Token { get; set; } = string.Empty;
         public DateTime Expires { get; set; }
         public DateTime Created { get; set; }
