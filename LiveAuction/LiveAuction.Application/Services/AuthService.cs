@@ -228,6 +228,10 @@ namespace LiveAuction.Application.Services
 
         public async Task<ApiResponse<string>> RequestOtpAsync(OtpRequestModel model, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(model.Email))
+            {
+                return ApiResponse<string>.Failure("Email is required");
+            }
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null)
             {
