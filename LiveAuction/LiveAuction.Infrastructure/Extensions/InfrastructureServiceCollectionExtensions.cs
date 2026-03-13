@@ -54,6 +54,7 @@ namespace LiveAuction.Infrastructure.Extensions
             services.AddScoped<IUnitOfWork,UnitOfWork>();
             services.AddScoped(typeof(IGenericWriteRepository<>), typeof(GenericWriteRepository<>));
             services.AddScoped(typeof(IGenericReadRepository<>), typeof(GenericReadRepository<>));
+            services.AddScoped<IAuctionReadRepository, AuctionReadRepository>();
             services.Configure<JWT>(configuration.GetSection("JWT"));
             services.AddAuthentication(options =>
             {

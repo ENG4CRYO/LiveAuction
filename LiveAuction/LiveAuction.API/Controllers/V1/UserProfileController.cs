@@ -8,11 +8,11 @@ using System.Security.Claims;
 
 namespace LiveAuction.API.Controllers.V1
 {
-    [Authorize]
-    [ApiController]
-    [Route("liveauction/[Controller]")]
-    [ApiVersion("1.0")]
-    [EnableRateLimiting("IpLimiter")]
+    //[Authorize]
+    //[ApiController]
+    //[Route("liveauction/[Controller]")]
+    //[ApiVersion("1.0")]
+    //[EnableRateLimiting("IpLimiter")]
     public class UserProfileController : ControllerBase
     {
         private readonly IUserProfileService _userProfileService;
