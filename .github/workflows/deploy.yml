@@ -40,8 +40,8 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
           
-          mkdir -p ~/app
-          cd ~/app
+          mkdir -p ~/LiveAuction
+          cd ~/LiveAuction
           
 
           cat <<EOF > docker-compose.yml
@@ -51,7 +51,7 @@ jobs:
               container_name: liveauction_api
               restart: always
               ports:
-                - "8080:8080"
+                - "5000:8080"
               env_file:
                 - .env
               environment:

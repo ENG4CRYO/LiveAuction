@@ -1,4 +1,4 @@
-﻿using LiveAuction.Application.Interfaces;
+﻿using LiveAuction.Application.Interfaces.EmailServiceInterfaces;
 using LiveAuction.Application.Models;
 using System;
 using System.Collections.Generic;

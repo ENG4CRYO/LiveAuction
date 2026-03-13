@@ -8,6 +8,7 @@ namespace LiveAuction.Core.Enums
     {
         Pending,
         Active,
-        Finished
+        Finished,
+        Sold
     }
 }

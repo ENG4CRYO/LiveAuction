@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LiveAuction.Application.Interfaces
+namespace LiveAuction.Application.Interfaces.EmailServiceInterfaces
 {
     public interface IEmailService
     {

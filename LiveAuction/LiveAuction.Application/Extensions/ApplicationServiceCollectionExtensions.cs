@@ -5,8 +5,10 @@ using AutoMapper;
 using FluentValidation;
 using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Interfaces;
+using LiveAuction.Application.Interfaces.UserProfileInterfaces;
 using LiveAuction.Application.Profiles;
 using LiveAuction.Application.Services;
+using LiveAuction.Application.Services.UserProfileServices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LiveAuction.Application.Extensions
@@ -17,6 +19,7 @@ namespace LiveAuction.Application.Extensions
         {
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAppStatusService, AppStatusService>();
+            services.AddScoped<IUserProfileService,UserProfileService>();
             services.AddScoped<JWT>();
             services.AddScoped<TokenHelper>();
             services.AddAutoMapper(cfg => cfg.AddProfile<AuthProfile>());

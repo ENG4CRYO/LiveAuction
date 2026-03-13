@@ -3,6 +3,7 @@ using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AuthModel;
 using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Interfaces;
+using LiveAuction.Application.Interfaces.EmailServiceInterfaces;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces.Read;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces.Write;

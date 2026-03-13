@@ -1,4 +1,4 @@
-﻿using LiveAuction.Application.Interfaces;
+﻿using LiveAuction.Application.Interfaces.EmailServiceInterfaces;
 using LiveAuction.Core.Settings;
 using Microsoft.Extensions.Options;
 using System;
