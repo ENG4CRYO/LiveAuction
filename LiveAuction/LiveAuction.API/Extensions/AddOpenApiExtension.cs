@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi;
+﻿using LiveAuction.Application.Helpers;
+using Microsoft.OpenApi;
 
 namespace LiveAuction.API.Extensions
 {
@@ -13,6 +14,11 @@ namespace LiveAuction.API.Extensions
                     document.Servers = new List<OpenApiServer>
                     {
                             new OpenApiServer { Url = configuration.GetSection("DomainUrl").Value }
+                    };
+                    document.Info = new ()
+                    {
+                        Title = "Live Auction API",
+                        Description = ScalarDocumentInfo.GetScalarDocumentInfo(),
                     };
                     return Task.CompletedTask;
                 });

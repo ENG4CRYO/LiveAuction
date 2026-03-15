@@ -55,7 +55,7 @@ namespace LiveAuction.Application.Services
                 IsMaintenance = false,
                 UpdateRequired = false,
                 IsBanned = false,
-                StoreUrl = storeUrl,
+                StoreUrl = null!,
                 Message = "System is operational."
             };
 
