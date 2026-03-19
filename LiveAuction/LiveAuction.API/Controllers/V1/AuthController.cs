@@ -40,7 +40,7 @@ namespace LiveAuction.API.Controllers.V1
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] TokenRequestModel model, CancellationToken cancellationToken)
         {
-            var result = await _authService.GetTokenAsync(model,cancellationToken);
+            var result = await _authService.GetTokenAsync(model, cancellationToken);
 
             if (!result.Succeeded)
                 return BadRequest(result);
@@ -53,7 +53,7 @@ namespace LiveAuction.API.Controllers.V1
         [EndpointDescription("Verify refresh token, rovoke the refresh token, issue new refresh token")]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<AuthModel>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> RefreshToken([FromBody] RequestRefreshToken refreshToken,CancellationToken cancellationToken)
+        public async Task<IActionResult> RefreshToken([FromBody] RequestRefreshToken refreshToken, CancellationToken cancellationToken)
         {
             var result = await _authService.RefreshTokenAsync(refreshToken.Token, cancellationToken);
 
@@ -68,7 +68,7 @@ namespace LiveAuction.API.Controllers.V1
         [EndpointDescription("revoke the refresh token")]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model,CancellationToken cancellationToken)
+        public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model, CancellationToken cancellationToken)
         {
 
 
@@ -83,7 +83,7 @@ namespace LiveAuction.API.Controllers.V1
             return Ok(ApiResponse<string>.Success("Token revoked successfully"));
         }
 
-        [HttpPost("request-otp")]
+        [HttpPost("request-register-otp")]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
         [EndpointDescription("Sends an OTP to the provided email for registration")]
@@ -96,7 +96,7 @@ namespace LiveAuction.API.Controllers.V1
             return Ok(result);
         }
 
-        [HttpPost("verify-otp")]
+        [HttpPost("verify-register-otp")]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
         [EndpointDescription("Verifies the OTP and returns a Register Token")]
@@ -109,6 +109,39 @@ namespace LiveAuction.API.Controllers.V1
             return Ok(result);
         }
 
+        [HttpPost("forgot-password-otp")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [EndpointDescription("Sends a password reset OTP to the provided email")]
+        public async Task<IActionResult> ForgotPassword([FromBody] OtpRequestModel model, CancellationToken cancellationToken)
+        {
+            var result = await _authService.ForgotPasswordAsync(model, cancellationToken);
+            return Ok(result);
+        }
 
+        [HttpPost("verify-password-otp")]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<string>), StatusCodes.Status400BadRequest)]
+        [EndpointDescription("Verifies the password reset OTP and returns a Reset Token")]
+        public async Task<IActionResult> VerifyResetOtp([FromBody] OtpVerifyModel model, CancellationToken cancellationToken)
+        {
+            var result = await _authService.VerifyResetOtpRequest(model, cancellationToken);
+
+            if (!result.Succeeded)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("reset-password")]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<bool>), StatusCodes.Status400BadRequest)]
+        [EndpointDescription("Resets the user password using the provided Reset Token and new password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model, CancellationToken cancellationToken)
+        {
+            var result = await _authService.ResetPasswordAsync(model, cancellationToken);
+            if (!result.Succeeded)
+                return BadRequest(result);
+            return Ok(result);
+        }
     }
 }

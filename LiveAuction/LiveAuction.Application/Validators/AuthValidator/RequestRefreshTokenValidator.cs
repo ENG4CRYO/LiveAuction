@@ -4,7 +4,7 @@ using System.Text;
 using FluentValidation;
 using LiveAuction.Application.Dtos.AuthModel;
 
-namespace LiveAuction.Application.Validators
+namespace LiveAuction.Application.Validators.AuthValidator
 {
     public class RequestRefreshTokenValidator : AbstractValidator<RequestRefreshToken>
     {

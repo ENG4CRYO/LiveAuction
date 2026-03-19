@@ -36,7 +36,7 @@ namespace LiveAuction.Infrastructure.Extensions
             }
 
             services.AddIdentity<ApplicationUser, IdentityRole<Guid>>()
-                 .AddEntityFrameworkStores<AppDbContext>();
+                 .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(connectionString, b =>

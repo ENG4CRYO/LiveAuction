@@ -2,6 +2,7 @@
 using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AuthModel;
 using LiveAuction.Application.Helpers;
+using LiveAuction.Application.Helpers.Templates;
 using LiveAuction.Application.Interfaces;
 using LiveAuction.Application.Interfaces.EmailServiceInterfaces;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces;
@@ -252,7 +253,7 @@ namespace LiveAuction.Application.Services
             var cacheKey = $"OTP_{model.Email}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
-            string emailBody = OtpEmailBody.GenerateOtpEmailBody(otp);
+            string emailBody = EmailTemplateHelper.GenerateOtpEmailBody(otp);
 
             if (!isTestEmail)
             {
@@ -287,5 +288,84 @@ namespace LiveAuction.Application.Services
             return ApiResponse<string>.Success(registerToken, "OTP Verified. Use this token to complete registration");
         }
 
+        public async Task<ApiResponse<bool>> ForgotPasswordAsync(OtpRequestModel model, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return ApiResponse<bool>.Success(true, "If the email is registered, an OTP has been sent");
+            }
+
+            string otp = model.Email.EndsWith("@test.com") ? "123456" : new Random().Next(100000, 999999).ToString();
+
+            var cacheKey = $"OTP_{model.Email}";
+            _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
+
+            if (!model.Email.EndsWith("@test.com"))
+            {
+                string emailBody = EmailTemplateHelper.GenerateResetPasswordEmail(otp);
+                await _emailQueue.QueueBackgroundEmailAsync(
+                    new EmailMetadata(model.Email, "LiveAuction Password Reset OTP", emailBody));
+            }
+            return ApiResponse<bool>.Success(true, "If the email is registered, an OTP has been sent");
+        }
+
+        public async Task<ApiResponse<string>> VerifyResetOtpRequest(OtpVerifyModel model, CancellationToken cancellationToken)
+        {
+            var cacheKey = $"OTP_{model.Email}";
+            if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))
+            {
+                return ApiResponse<string>.Failure("OTP has expired or does not exist");
+            }
+
+            if (storedOtp != model.Otp)
+            {
+                return ApiResponse<string>.Failure("Invalid OTP code");
+            }
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if(user == null)
+            {
+                return ApiResponse<string>.Failure("User not found");
+            }
+
+            _memoryCache.Remove(cacheKey);
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+            return ApiResponse<string>.Success(resetToken, "OTP Verified. Use this token to reset your password");
+
+        }
+
+        public async Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordRequest model, CancellationToken cancellationToken)
+        {
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user == null)
+            {
+                return ApiResponse<bool>.Failure("User not found");
+            }
+
+            bool isSameAsOldPassword = await _userManager.CheckPasswordAsync(user, model.NewPassword);
+            if (isSameAsOldPassword)
+            {
+                return ApiResponse<bool>.Failure("The new password cannot be the same as the old password.");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
+            if (result.Succeeded)
+            {
+                if (!model.Email.EndsWith("@test.com"))
+                {
+                    string userName = !string.IsNullOrWhiteSpace(user.FirstName) ? user.FirstName : "User";
+                    string successEmailBody = EmailTemplateHelper.GeneratePasswordChangedSuccessEmail(userName);
+
+                    await _emailQueue.QueueBackgroundEmailAsync(
+                        new EmailMetadata(user.Email!, "LiveAuction - Security Alert: Password Changed", successEmailBody)
+                    );
+                }
+
+                return ApiResponse<bool>.Success(true, "Password has been reset successfully.");
+            }
+            return ApiResponse<bool>.Failure("Password reset failed. Please ensure the token is correct and try again");
+
+        }
     }
 }
