@@ -13,7 +13,7 @@ namespace LiveAuction.Application.Helpers
                 Welcome to the official API documentation for the LiveAuction platform.
 
                 ## Test Credentials
-                Use the following credentials to bypass the email verification step during testing:
+                Use the following credentials to bypass the email verification step and forgot password otp during testing:
                 * **Test Email:** `example@test.com`
                 * **Static OTP:** `123456`
 
@@ -28,6 +28,13 @@ namespace LiveAuction.Application.Helpers
                 | **X-Api-Version** | `1.0` | Target API version. | Yes |
                 | **X-App-Version** | `1.0.0` | Current version of the mobile app. | Yes |
                 | **Accept-Encoding**| `gzip, br` | Requests compressed payload (br: Smallest, gzip: Fastest). | Optional (Recommended)|
+
+                ---
+
+                ## Api Version Control
+                * **Default Version(If the version is not sent):** `1.0`
+                * **Auth Version:** `1.0`
+                * **UserProfile Version:** `1.0`
 
                 ---
 
