@@ -20,8 +20,34 @@ namespace LiveAuction.API.Extensions
                         Title = "Live Auction API",
                         Description = ScalarDocumentInfo.GetScalarDocumentInfo(),
                     };
+                    document.Components ??= new OpenApiComponents();
+
+    
+                    var schemeName = "Bearer";
+                    var securityScheme = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "bearer",
+                        BearerFormat = "JWT",
+                        Description = "JWT Token"
+                    };
+
+
+                    document.AddComponent(schemeName, securityScheme);
+
+                    document.Security ??= new List<OpenApiSecurityRequirement>();
+                    document.Security.Add(new OpenApiSecurityRequirement
+                    {
+                        {
+
+                            new OpenApiSecuritySchemeReference(schemeName, document),
+                            new List<string>()
+                        }
+                    });
+
                     return Task.CompletedTask;
                 });
+
             });
 
             return services;

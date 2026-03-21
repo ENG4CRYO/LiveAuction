@@ -83,6 +83,12 @@ try
     {
         options.WithTitle("LiveAuction API Documentation"); 
         options.WithTheme(ScalarTheme.BluePlanet);
+        options.Layout = ScalarLayout.Classic;
+
+        options.Authentication = new ScalarAuthenticationOptions
+        {
+            PreferredSecuritySchemes = new[] { "Bearer" }
+        };
     });
 
     if (app.Environment.IsDevelopment())
