@@ -8,8 +8,10 @@ namespace LiveAuction.Application.Validators.AuthValidator
         public ResetPasswordRequestValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email Is Required")
-                .EmailAddress().WithMessage("Invalid Email Format");
+                 .Cascade(CascadeMode.Stop)
+                 .NotEmpty().WithMessage("Email Is Required")
+                 .EmailAddress().WithMessage("Invalid Email Format")
+                 .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Invalid Email Format");
 
             RuleFor(x => x.Token)
                 .NotEmpty().WithMessage("Token Is Required");

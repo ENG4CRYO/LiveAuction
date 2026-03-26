@@ -7,7 +7,7 @@ using System.Text;
 
 namespace LiveAuction.Infrastructure.EntityConfigurations
 {
-    public class CatrgoryConfiguration : IEntityTypeConfiguration<Category>
+    public class CategoryConfiguration : IEntityTypeConfiguration<Category>
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {

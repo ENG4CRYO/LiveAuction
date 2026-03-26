@@ -10,7 +10,9 @@ namespace LiveAuction.Application.Validators.AuthValidator
     {
         public RequestRefreshTokenValidator()
         {
-            RuleFor(x => x.Token).NotNull().WithMessage("Refresh Token Cannot Be Null")
+            RuleFor(x => x.Token)
+                .Cascade(CascadeMode.Stop)
+                .NotNull().WithMessage("Refresh Token Cannot Be Null")
                 .NotEmpty().WithMessage("Refresh Token Canneot Be Empty");
         }
     }

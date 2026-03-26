@@ -2,6 +2,7 @@
 using LiveAuction.api.Factories;
 using LiveAuction.api.Middlewares;
 using LiveAuction.API.Extensions;
+using LiveAuction.API.Helper.CustomCssScalar;
 using LiveAuction.API.Middlewares;
 using LiveAuction.Application.Common;
 using LiveAuction.Application.Extensions;
@@ -83,7 +84,8 @@ try
     {
         options.WithTitle("LiveAuction API Documentation"); 
         options.WithTheme(ScalarTheme.BluePlanet);
-        options.Layout = ScalarLayout.Classic;
+        options.Layout = ScalarLayout.Modern;
+        options.CustomCss = CssScalar.CustomCss;
 
         options.Authentication = new ScalarAuthenticationOptions
         {

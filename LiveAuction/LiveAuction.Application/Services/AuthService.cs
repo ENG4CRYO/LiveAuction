@@ -106,7 +106,7 @@ namespace LiveAuction.Application.Services
 
             if (string.IsNullOrEmpty(verifiedEmail))
             {
-                return ApiResponse<AuthModel>.Failure("Invalid or expired Register Token. Please verify your email again");
+                return ApiResponse<AuthModel>.Failure("Invalid or expired information for register. Please verify your email again");
             }
 
             var userExists = await _userManager.FindByEmailAsync(verifiedEmail);
@@ -131,7 +131,7 @@ namespace LiveAuction.Application.Services
                 }
                 ApiResponse.Data = authModel;
 
-                return ApiResponse<AuthModel>.Failure("Error occured while created account");
+                return ApiResponse<AuthModel>.Failure("Error occured while created account. Pleas try again later");
             }
 
             await _userManager.AddToRoleAsync(newUser, "User");
@@ -165,18 +165,22 @@ namespace LiveAuction.Application.Services
 
 
             if (storedToken == null)
-                return ApiResponse<AuthModel>.Failure("Invalid refresh token");
+                return ApiResponse<AuthModel>.Failure("Your session is invalid. Please log in again.");
 
             var user = await _userManager.FindByIdAsync(storedToken.UserId.ToString());
-            if (user == null) return ApiResponse<AuthModel>.Failure("User not found");
+
+            if (user == null)
+                return ApiResponse<AuthModel>.Failure("Your account could not be found. Please log in again.");
 
             if (storedToken.IsRevoked)
             {
-                return ApiResponse<AuthModel>.Failure("Security breach detected!");
+                return ApiResponse<AuthModel>.Failure("Your session has been terminated. Please log in again.");
             }
 
             if (!storedToken.IsActive)
-                return ApiResponse<AuthModel>.Failure("Refresh token expired");
+            {
+                return ApiResponse<AuthModel>.Failure("Your session has expired. Please log in again.");
+            }
 
             await _tokenHelper.ManageUserTokensAsync(_refreshTokenWriteRepo, _refreshTokenReadRepo, user.Id, cancellationToken);
             var newRefreshToken = _tokenHelper.GenerateRefreshToken();
@@ -213,7 +217,7 @@ namespace LiveAuction.Application.Services
 
 
             if (storedToken == null)
-                return ApiResponse<bool>.Failure("Refresh token not found");
+                return ApiResponse<bool>.Failure("Invalid Information for logout.");
 
             if (storedToken.IsActive)
             {
@@ -230,10 +234,6 @@ namespace LiveAuction.Application.Services
 
         public async Task<ApiResponse<string>> RequestOtpAsync(OtpRequestModel model, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(model.Email))
-            {
-                return ApiResponse<string>.Failure("Email is required");
-            }
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user != null)
             {
@@ -250,7 +250,7 @@ namespace LiveAuction.Application.Services
                 otp = new Random().Next(100000, 999999).ToString();
             }
 
-            var cacheKey = $"OTP_{model.Email}";
+            var cacheKey = $"OTP_{model.Email.ToLower()}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
             string emailBody = EmailTemplateHelper.GenerateOtpEmailBody(otp);
@@ -259,7 +259,7 @@ namespace LiveAuction.Application.Services
             {
                 await _emailQueue.QueueBackgroundEmailAsync(
                  new EmailMetadata(model.Email, "LiveAuction Verification Code", emailBody));
-                return ApiResponse<string>.Success(string.Empty, $"OTP sent to {model.Email}. Please check your inbox.");
+                return ApiResponse<string>.Success(string.Empty, $"OTP sent to {model.Email.ToLower()}. Please check your inbox.");
             }
             else
             {
@@ -270,7 +270,7 @@ namespace LiveAuction.Application.Services
 
         public async Task<ApiResponse<string>> VerifyOtpAsync(OtpVerifyModel model, CancellationToken cancellationToken)
         {
-            var cacheKey = $"OTP_{model.Email}";
+            var cacheKey = $"OTP_{model.Email.ToLower()}";
             if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))
             {
                 return ApiResponse<string>.Failure("OTP has expired or does not exist");
@@ -285,7 +285,7 @@ namespace LiveAuction.Application.Services
 
             var registerToken = await _tokenHelper.GenerateRegisterToken(model.Email);
 
-            return ApiResponse<string>.Success(registerToken, "OTP Verified. Use this token to complete registration");
+            return ApiResponse<string>.Success(registerToken, "OTP Verified.");
         }
 
         public async Task<ApiResponse<bool>> ForgotPasswordAsync(OtpRequestModel model, CancellationToken cancellationToken)
@@ -298,7 +298,7 @@ namespace LiveAuction.Application.Services
 
             string otp = model.Email.EndsWith("@test.com") ? "123456" : new Random().Next(100000, 999999).ToString();
 
-            var cacheKey = $"OTP_{model.Email}";
+            var cacheKey = $"OTP_{model.Email.ToLower()}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
             if (!model.Email.EndsWith("@test.com"))
@@ -312,7 +312,7 @@ namespace LiveAuction.Application.Services
 
         public async Task<ApiResponse<string>> VerifyResetOtpRequest(OtpVerifyModel model, CancellationToken cancellationToken)
         {
-            var cacheKey = $"OTP_{model.Email}";
+            var cacheKey = $"OTP_{model.Email.ToLower()}";
             if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))
             {
                 return ApiResponse<string>.Failure("OTP has expired or does not exist");
@@ -326,12 +326,12 @@ namespace LiveAuction.Application.Services
             var user = await _userManager.FindByEmailAsync(model.Email);
             if(user == null)
             {
-                return ApiResponse<string>.Failure("User not found");
+                return ApiResponse<string>.Failure("Your account could be not found");
             }
 
             _memoryCache.Remove(cacheKey);
             var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-            return ApiResponse<string>.Success(resetToken, "OTP Verified. Use this token to reset your password");
+            return ApiResponse<string>.Success(resetToken, "OTP Verified");
 
         }
 
@@ -340,7 +340,7 @@ namespace LiveAuction.Application.Services
             var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
-                return ApiResponse<bool>.Failure("User not found");
+                return ApiResponse<bool>.Failure("Your account could be not found");
             }
 
             bool isSameAsOldPassword = await _userManager.CheckPasswordAsync(user, model.NewPassword);
@@ -364,7 +364,7 @@ namespace LiveAuction.Application.Services
 
                 return ApiResponse<bool>.Success(true, "Password has been reset successfully.");
             }
-            return ApiResponse<bool>.Failure("Password reset failed. Please ensure the token is correct and try again");
+            return ApiResponse<bool>.Failure("Password reset failed. please try again");
 
         }
     }

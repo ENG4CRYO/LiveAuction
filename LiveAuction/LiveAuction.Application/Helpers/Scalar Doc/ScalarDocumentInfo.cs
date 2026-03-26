@@ -41,12 +41,12 @@ namespace LiveAuction.Application.Helpers
                 ## App Version Control
                 The API strictly monitors the mobile app version via the `X-App-Version` header:
                 * **Supported Versions:** `>= 1.0.0`
-                * **Banned/Deprecated Versions:** `0.3.1` and `0.3.0` forced to update
+                * **Banned/Deprecated Versions:** `1.3.1` and `0.3.0` forced to update
 
                 ---
                 ## Rate Limiting
                 Rate Limiting per IP address/User:
-                * **General Limit:**  100 requests per 10 seconds.
+                * **General Limit:**  200 requests per 10 seconds.
                 * **Auth Limit:**  5 requests per 30 seconds.
                 ---
 
@@ -54,14 +54,27 @@ namespace LiveAuction.Application.Helpers
                 
                 ### 1. Standard Response Format
                 All endpoints return a unified JSON wrapper (`ApiResponse<T>`):
+                * In case success
                 ```json
                 {
                   "succeeded": true,
                   "message": "Operation completed successfully.",
-                  "errors": [],
+                  "errors": null,
                   "data": { ... } 
                 }
                 ```
+                * In case failure
+                ```json
+                {
+                  "succeeded": false,
+                  "message": "Validation Failed.",
+                  "errors": { },
+                  "data": { ... } 
+                }
+                ```
+                * If there is an error in the response, show it to the user.
+                * If the error is null then show the message to user.
+                * Note: the errors type is Dictionary <string, List<<string>>>
 
                 """;
 

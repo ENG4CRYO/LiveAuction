@@ -9,15 +9,14 @@ namespace LiveAuction.api.Factories
     {
         public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
         {
-
             var errors = context.ModelState
-                .Where(e => e.Value.Errors.Count > 0)
-                .SelectMany(x => x.Value.Errors)
-                .Select(x => x.ErrorMessage)
-                .ToList();
+               .Where(e => e.Value.Errors.Count > 0)
+               .ToDictionary(
+                   kvp => kvp.Key, 
+                   kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToList()
+               );
 
-
-            var response = ApiResponse<object>.Failure("", errors);
+            var response = ApiResponse<object>.Failure("Validation Failed", errors);
 
 
             return new BadRequestObjectResult(response);

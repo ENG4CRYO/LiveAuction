@@ -14,8 +14,8 @@ namespace LiveAuction.API.Middlewares
         {
             new PathString("/scalar"),
             new PathString("/openapi"),
-            new PathString("/swagger"),
-            new PathString("/liveauction/appstatus")
+            new PathString("/swagger")
+            //new PathString("/liveauction/appstatus")
         };
 
         public AppVersionCheckMiddleware(RequestDelegate next)
@@ -55,7 +55,7 @@ namespace LiveAuction.API.Middlewares
 
                 if (statusResponse.Data.IsBanned)
                 {
-                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                    context.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsJsonAsync(statusResponse);
                     return;

@@ -31,27 +31,33 @@ namespace LiveAuction.api.Middlewares
         private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             context.Response.ContentType = "application/json";
-
-            var response = ApiResponse<string>.Failure(exception.Message);
+            string userFriendlyMessage = "An unexpected error occurred.";
+            int statusCode = (int)HttpStatusCode.InternalServerError;
 
 
             switch (exception)
             {
                 case KeyNotFoundException e:
-                    context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    statusCode = (int)HttpStatusCode.NotFound;
+                    userFriendlyMessage = "The requested resource was not found.";
                     break;
                 case UnauthorizedAccessException e:
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    statusCode = (int)HttpStatusCode.Forbidden;
+                    userFriendlyMessage = "You do not have permission to perform this action.";
                     break;
                 case ArgumentException e:
-
-                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    statusCode = (int)HttpStatusCode.BadRequest;
+                    userFriendlyMessage = e.Message;
                     break;
                 default:
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    response.Message = "Internal Server Error";
+                    statusCode = (int)HttpStatusCode.InternalServerError;
+                    userFriendlyMessage = "Internal Server Error. Please try again later.";
                     break;
             }
+
+            context.Response.StatusCode = statusCode;
+            var response = ApiResponse<string>.Failure(userFriendlyMessage);
+
 
             var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
             var json = JsonSerializer.Serialize(response, jsonOptions);

@@ -14,7 +14,15 @@ namespace LiveAuction.api.Extensions
                 options.OnRejected = async (context, token) =>
                 {
                     context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                    var response = ApiResponse<object>.Failure("Error : Rate Limiter", new List<string> { "Reached Requests Limit, Please Wait" });
+                    var errors = new Dictionary<string, List<string>>
+                    {
+                        { "Rate Limit", new List<string>
+                            {
+                                 "Too Many Request, Try Again Later"
+                            }
+                        }
+                    };
+                    var response = ApiResponse<object>.Failure("Error : Rate Limiter", errors);
                     await context.HttpContext.Response.WriteAsJsonAsync(response, token);
                 };
 
@@ -25,7 +33,7 @@ namespace LiveAuction.api.Extensions
 
                     return RateLimitPartition.GetFixedWindowLimiter(partitionKey: partitionKey, factory: _ => new FixedWindowRateLimiterOptions
                     {
-                        PermitLimit = 100,
+                        PermitLimit = 200,
                         Window = TimeSpan.FromSeconds(10),
                         QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                         QueueLimit = 0

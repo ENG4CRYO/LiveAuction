@@ -11,11 +11,16 @@ namespace LiveAuction.Application.Validators.AuthValidator
         public OtpVerifyModelValidator()
         {
             RuleFor(x => x.Email)
-                .NotEmpty().WithMessage("Email Is Required")
-                .EmailAddress().WithMessage("Invalid Email Format");
+                 .Cascade(CascadeMode.Stop)
+                 .NotEmpty().WithMessage("Email Is Required")
+                 .EmailAddress().WithMessage("Invalid Email Format")
+                 .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Invalid Email Format");
 
             RuleFor(x => x.Otp)
-                .NotEmpty().WithMessage("OTP Is Required");
+                .Cascade(cascadeMode: CascadeMode.Stop)
+                .NotEmpty().WithMessage("OTP Is Required")
+                .Length(6).WithMessage("OTP Must be 6 number")
+                .Matches(@"^\d+$").WithMessage("OTP Must contain numbers only");
         }
     }
 }
