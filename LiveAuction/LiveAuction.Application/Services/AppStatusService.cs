@@ -30,18 +30,22 @@ namespace LiveAuction.Application.Services
             {
                 return CreateErrorResponse("Invalid client version format.");
             }
+            string minVersionStr = _configuration.GetValue<string>("AppStatus:GlobalMinVersion") ?? "1.0.0";
+            string currentVersionStr = _configuration.GetValue<string>("AppStatus:CurrentVersion") ?? "1.0.0";
+
 
             var maintenanceResult = await CheckMaintenanceAsync();
             if (maintenanceResult != null)
-                return CreateSuccessResponse(maintenanceResult, "System is under maintenance.");
+                return ReturnWithVersions(maintenanceResult, minVersionStr, currentVersionStr, "System is under maintenance.");
 
-            var bannedResult = await CheckBannedVersionAsync(clientVersion,os);
+            var bannedResult = await CheckBannedVersionAsync(clientVersion, os);
             if (bannedResult != null)
-                return CreateSuccessResponse(bannedResult, "Version is banned.");
+                return ReturnWithVersions(bannedResult, minVersionStr, currentVersionStr, "Version is banned.");
 
             var updateResult = await CheckUpdateRequiredAsync(currentVersion, os);
             if (updateResult != null)
-                return CreateSuccessResponse(updateResult, "Update required.");
+                return ReturnWithVersions(updateResult, minVersionStr, currentVersionStr, "Update required.");
+
             var osStoreUrlKey = os switch
             {
                 "android" => "AppStatus:StoreUrlAndroid",
@@ -55,14 +59,20 @@ namespace LiveAuction.Application.Services
                 IsMaintenance = false,
                 UpdateRequired = false,
                 IsBanned = false,
-                StoreUrl = null!,
+                StoreUrl = storeUrl,
                 Message = "System is operational."
             };
 
-            return CreateSuccessResponse(okResult, "Success.");
+            return ReturnWithVersions(okResult, minVersionStr, currentVersionStr, "Success.");
         }
 
         #region Private Helper Methods
+        private ApiResponse<AppStatusResult> ReturnWithVersions(AppStatusResult result, string minVersion, string currentVersion, string message)
+        {
+            result.MinimumVersion = minVersion;
+            result.CurrentVersion = currentVersion;
+            return CreateSuccessResponse(result, message);
+        }
         private async Task<AppStatusResult?> CheckMaintenanceAsync()
         {
             await Task.CompletedTask; 

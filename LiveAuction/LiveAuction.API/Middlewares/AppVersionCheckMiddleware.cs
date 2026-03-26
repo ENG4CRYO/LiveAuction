@@ -14,8 +14,8 @@ namespace LiveAuction.API.Middlewares
         {
             new PathString("/scalar"),
             new PathString("/openapi"),
-            new PathString("/swagger")
-            //new PathString("/liveauction/appstatus")
+            new PathString("/swagger"),
+            new PathString("/liveauction/appstatus")
         };
 
         public AppVersionCheckMiddleware(RequestDelegate next)
