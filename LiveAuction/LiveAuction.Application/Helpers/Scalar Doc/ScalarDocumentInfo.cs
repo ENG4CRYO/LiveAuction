@@ -41,7 +41,7 @@ namespace LiveAuction.Application.Helpers
                 ## App Version Control
                 The API strictly monitors the mobile app version via the `X-App-Version` header:
                 * **Minimum Supported Versions:** `>= 1.0.0` optinal to update
-                * **Current Version Versions:** `= 1.0.0`
+                * **Current Version Versions:** `= 1.2.0`
                 * **Banned/Deprecated Versions:** `1.3.1` and `0.3.0` forced to update
 
                 ---
