@@ -20,6 +20,7 @@ namespace LiveAuction.Application.Extensions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IAppStatusService, AppStatusService>();
             services.AddScoped<IUserProfileService,UserProfileService>();
+            services.AddScoped<ITokenHelper, TokenHelper>();
             services.AddScoped<JWT>();
             services.AddScoped<TokenHelper>();
             services.AddAutoMapper(cfg => cfg.AddProfile<AuthProfile>());

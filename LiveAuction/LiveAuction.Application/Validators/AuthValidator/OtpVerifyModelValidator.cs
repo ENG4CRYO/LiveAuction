@@ -17,10 +17,10 @@ namespace LiveAuction.Application.Validators.AuthValidator
                  .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Invalid Email Format");
 
             RuleFor(x => x.Otp)
-                .Cascade(cascadeMode: CascadeMode.Stop)
-                .NotEmpty().WithMessage("OTP Is Required")
-                .Length(6).WithMessage("OTP Must be 6 number")
-                .Matches(@"^\d+$").WithMessage("OTP Must contain numbers only");
+                .Cascade(CascadeMode.Stop)
+                .NotNull().WithMessage("OTP Is Required")
+                .InclusiveBetween(100000, 999999).WithMessage("OTP Must be 6 number");
+                
         }
     }
 }

@@ -18,15 +18,14 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace LiveAuction.Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly TokenHelper _tokenHelper;
-        private readonly IConfiguration _configuration;
-        private readonly JWT _jwt;
+        private readonly ITokenHelper _tokenHelper;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMapper _mapper;
         private readonly IGenericWriteRepository<RefreshToken> _refreshTokenWriteRepo;
@@ -36,27 +35,24 @@ namespace LiveAuction.Application.Services
         private readonly IUnitOfWork _unitOfWork;   
 
         public AuthService(UserManager<ApplicationUser> userManager,
-        IOptions<JWT> jwt,
         IMapper mapper,
-        IConfiguration configuration,
         IGenericWriteRepository<RefreshToken> refreshTokenWriteRepo,
         IGenericReadRepository<RefreshToken> refreshTokenReadRepo,
         IMemoryCache memoryCache,
         IEmailService emailService,
         IEmailQueue emailQueue,
-        IUnitOfWork unitOfWork
+        IUnitOfWork unitOfWork,
+        ITokenHelper tokenHelper
         )
         {
             _userManager = userManager;
-            _jwt = jwt.Value;
             _mapper = mapper;
-            _configuration = configuration;
             _refreshTokenWriteRepo = refreshTokenWriteRepo;
             _refreshTokenReadRepo = refreshTokenReadRepo;
             _memoryCache = memoryCache;
             _emailQueue = emailQueue;
             _unitOfWork = unitOfWork;
-            _tokenHelper = new TokenHelper(_jwt, _userManager, _unitOfWork);
+            _tokenHelper = tokenHelper;
 
         }
 
@@ -94,7 +90,7 @@ namespace LiveAuction.Application.Services
             authModel.Roles = roles;
 
 
-            return ApiResponse<AuthModel>.Success(authModel);
+            return ApiResponse<AuthModel>.Success(authModel, "Login successfully");
 
         }
 
@@ -239,16 +235,9 @@ namespace LiveAuction.Application.Services
             {
                 return ApiResponse<string>.Failure("Email is already registered");
             }
-            string otp;
+
             bool isTestEmail = model.Email.EndsWith("@test.com");
-            if(isTestEmail)
-            {
-                otp = "123456";
-            }
-            else
-            {
-                otp = new Random().Next(100000, 999999).ToString();
-            }
+            int otp = isTestEmail ? 123456 : RandomNumberGenerator.GetInt32(100000, 999999);
 
             var cacheKey = $"OTP_{model.Email.ToLower()}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
@@ -271,7 +260,7 @@ namespace LiveAuction.Application.Services
         public async Task<ApiResponse<string>> VerifyOtpAsync(OtpVerifyModel model, CancellationToken cancellationToken)
         {
             var cacheKey = $"OTP_{model.Email.ToLower()}";
-            if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))
+            if (!_memoryCache.TryGetValue(cacheKey, out int? storedOtp))
             {
                 return ApiResponse<string>.Failure("OTP has expired or does not exist");
             }
@@ -296,12 +285,13 @@ namespace LiveAuction.Application.Services
                 return ApiResponse<bool>.Success(true, "If the email is registered, an OTP has been sent");
             }
 
-            string otp = model.Email.EndsWith("@test.com") ? "123456" : new Random().Next(100000, 999999).ToString();
+            bool isTestEmail = model.Email.EndsWith("@test.com");
+            int otp = isTestEmail ? 123456 : RandomNumberGenerator.GetInt32(100000, 999999);
 
             var cacheKey = $"OTP_{model.Email.ToLower()}";
             _memoryCache.Set(cacheKey, otp, TimeSpan.FromMinutes(5));
 
-            if (!model.Email.EndsWith("@test.com"))
+            if (!isTestEmail)
             {
                 string emailBody = EmailTemplateHelper.GenerateResetPasswordEmail(otp);
                 await _emailQueue.QueueBackgroundEmailAsync(
@@ -313,7 +303,7 @@ namespace LiveAuction.Application.Services
         public async Task<ApiResponse<string>> VerifyResetOtpRequest(OtpVerifyModel model, CancellationToken cancellationToken)
         {
             var cacheKey = $"OTP_{model.Email.ToLower()}";
-            if (!_memoryCache.TryGetValue(cacheKey, out string? storedOtp))
+            if (!_memoryCache.TryGetValue(cacheKey, out int? storedOtp))
             {
                 return ApiResponse<string>.Failure("OTP has expired or does not exist");
             }

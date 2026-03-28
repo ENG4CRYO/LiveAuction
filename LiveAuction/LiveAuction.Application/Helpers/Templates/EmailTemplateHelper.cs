@@ -6,7 +6,7 @@ namespace LiveAuction.Application.Helpers.Templates
 {
     public static class EmailTemplateHelper
     {
-        public static string GenerateOtpEmailBody(string otp)
+        public static string GenerateOtpEmailBody(int otp)
         {
             string template = $@"
     <!DOCTYPE html>
@@ -50,7 +50,7 @@ namespace LiveAuction.Application.Helpers.Templates
 
             return template;
         }
-        public static string GenerateResetPasswordEmail(string otp)
+        public static string GenerateResetPasswordEmail(int otp)
         {
             string template = $$"""
                 <!DOCTYPE html>

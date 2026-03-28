@@ -1,27 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+﻿using LiveAuction.Application.Interfaces;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces.Read;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces.Write;
 using LiveAuction.Core.Entites;
 using LiveAuction.Core.Entites.AuthEntites;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace LiveAuction.Application.Helpers
 {
-    public class TokenHelper
+    public class TokenHelper : ITokenHelper
     {
         private readonly JWT _jwt;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUnitOfWork _unitOfWork;
-        public TokenHelper(JWT jwt, UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
+        public TokenHelper(IOptions<JWT> jwt, UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
         {
-            _jwt = jwt;
+            _jwt = jwt.Value;
             _userManager = userManager;
             _unitOfWork = unitOfWork;
         }
