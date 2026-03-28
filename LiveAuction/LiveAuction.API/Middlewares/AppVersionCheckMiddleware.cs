@@ -55,7 +55,7 @@ namespace LiveAuction.API.Middlewares
 
                 if (statusResponse.Data.IsBanned)
                 {
-                    context.Response.StatusCode = StatusCodes.Status426UpgradeRequired;
+                    context.Response.StatusCode = StatusCodes.Status403Forbidden;
                     context.Response.ContentType = "application/json";
                     await context.Response.WriteAsJsonAsync(statusResponse);
                     return;
