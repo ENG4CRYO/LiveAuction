@@ -8,6 +8,6 @@ namespace LiveAuction.Application.Interfaces.RepositoryInterfaces.Read
 {
     public interface IAuctionReadRepository : IGenericReadRepository<Auction>
     {
-        Task<ProfileRequestDto?> GetUserProfileAsync(Guid id,CancellationToken cancellationToken);
+        Task<(ApplicationUser User,int TotalItems, int SolidItems,decimal? AvgPrice)?> GetUserProfileAsync(Guid id,CancellationToken cancellationToken);
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace LiveAuction.Application.Dtos.AuthModel
+namespace LiveAuction.Application.Dtos.UserProfileDtos
 {
     public class ProfileRequestDto
     {
@@ -13,6 +13,6 @@ namespace LiveAuction.Application.Dtos.AuthModel
         public string Bio { get; set; } = string.Empty;
         public int SoldItems { get; set; }
         public int TotalItems { get; set; }
-        public decimal AvgPrice { get; set; }  
+        public decimal? AvgPrice { get; set; }  
     }
 }

@@ -1,5 +1,5 @@
 ﻿using LiveAuction.Application.Common;
-using LiveAuction.Application.Dtos.AuthModel;
+using LiveAuction.Application.Dtos.UserProfileDtos;
 using LiveAuction.Application.Interfaces.RepositoryInterfaces.Read;
 using LiveAuction.Application.Interfaces.UserProfileInterfaces;
 using LiveAuction.Core.Entites;
@@ -23,14 +23,28 @@ namespace LiveAuction.Application.Services.UserProfileServices
         }
         public async Task<ApiResponse<ProfileRequestDto>> GetUserProfileAsync(Guid id, CancellationToken cancellationToken)
         {
-            var userProfile = await _auctionReadRepository.GetUserProfileAsync(id, cancellationToken);
-
-            if (userProfile == null)
+            var result = await _auctionReadRepository.GetUserProfileAsync(id, cancellationToken);
+            if (!result.HasValue)
             {
                 return ApiResponse<ProfileRequestDto>.Failure("User profile not found.");
             }
 
-            return ApiResponse<ProfileRequestDto>.Success(userProfile, "User profile retrieved successfully.");
+            var (userEntity, totalItems, soldItems, avgPrice) = result.Value;
+
+            var userProfileDto = new ProfileRequestDto
+            {
+                Id = userEntity.Id,
+                FirstName = userEntity.FirstName,
+                LastName = userEntity.LastName,
+                ProfilePictureUrl = userEntity.ProfilePictureUrl ?? string.Empty,
+                Bio = userEntity.Bio ?? string.Empty,
+
+                TotalItems = totalItems,
+                SoldItems = soldItems,
+                AvgPrice = avgPrice
+            };
+
+            return ApiResponse<ProfileRequestDto>.Success(userProfileDto, "User profile retrieved successfully.");
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using LiveAuction.Application.Common;
-using LiveAuction.Application.Dtos.AuthModel;
+using LiveAuction.Application.Dtos.UserProfileDtos;
 using System;
 using System.Collections.Generic;
 using System.Text;

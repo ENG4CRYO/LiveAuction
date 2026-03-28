@@ -21,38 +21,26 @@ namespace LiveAuction.Infrastructure.Repositories.Read
             _userManager = userManager;
         }
 
-        public async Task<ProfileRequestDto?> GetUserProfileAsync(Guid id, CancellationToken cancellationToken)
+        public async Task<(ApplicationUser User, int TotalItems, int SolidItems, decimal? AvgPrice)?>
+            GetUserProfileAsync(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
-            {
-                return null;
-            }
+            var result = await _context.Users.AsNoTracking()
+                .Where(u => u.Id == id)
+                .Select(u => new
+                {
+                    User = u,
+                    TotalItems = u.Auctions.Count(),
+                    SoldItems = u.Auctions.Count(a => a.Status == EnAuctionStatus.Sold),
+                    AvgPrice = u.Auctions.Where(a => a.Status == EnAuctionStatus.Sold).Any()    
+                        ? u.Auctions.Where(a => a.Status == EnAuctionStatus.Sold)
+                        .Average(a => a.CurrentPrice)
+                        : 0
+                })
+                .FirstOrDefaultAsync(cancellationToken);
 
-            var profileStatus = await _context.Auctions.AsNoTracking()
-                .Where(a => a.Id == id)
-                .GroupBy(a => a.Id)
-                .Select(g => new
-                { 
-                    TotalItems = g.Count(),
-                    SoldItems = g.Count(a => a.Status == EnAuctionStatus.Sold),
-                    AveragePrice = g.Where(a => a.Status == EnAuctionStatus.Sold)
-                        .Select(a => (decimal?)a.CurrentPrice)
-                        .Average() ?? 0
-                }).FirstOrDefaultAsync(cancellationToken);
+            if (result == null) return null;
 
-            var result = new ProfileRequestDto
-            {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                ProfilePictureUrl = user.ProfilePictureUrl!,
-                Bio = user.Bio!,
-                SoldItems = profileStatus?.SoldItems ?? 0,
-                TotalItems = profileStatus?.TotalItems ?? 0,
-                AvgPrice = profileStatus?.AveragePrice ?? 0
-            };
-            return result;
+            return (result.User, result.TotalItems, result.SoldItems, result.AvgPrice);
 
         }
     }
