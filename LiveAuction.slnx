@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/tests/">
+    <Project Path="LiveAuction.Tests/LiveAuction.Tests.csproj" Id="884dbb05-86d2-455f-9953-c45195dea130" />
+  </Folder>
   <Project Path="LiveAuction/LiveAuction.API/LiveAuction.API.csproj" />
   <Project Path="LiveAuction/LiveAuction.Application/LiveAuction.Application.csproj" />
   <Project Path="LiveAuction/LiveAuction.Core/LiveAuction.Core.csproj" />
