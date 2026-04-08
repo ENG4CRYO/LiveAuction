@@ -28,6 +28,7 @@ namespace LiveAuction.Application.Helpers
                 | **X-Api-Version** | `1.0` | Target API version. | Yes |
                 | **X-App-Version** | `1.0.0` | Current version of the mobile app. | Yes |
                 | **Accept-Encoding**| `gzip, br` | Requests compressed payload (br: Smallest, gzip: Fastest). | Optional (Recommended)|
+                | **X-Firebase-AppCheck** | `{token}` | Firebase App Check token for app authentication. | Yes (except for public endpoints) |
 
                 ---
 
@@ -75,7 +76,7 @@ namespace LiveAuction.Application.Helpers
                 ```
                 * If there is an error in the response, show it to the user.
                 * If the error is null then show the message to user.
-                * Note: the errors type is Dictionary <string, List<<string>>>
+                * Note: the errors type is `Dictionary<string, List<string>>`
 
                 """;
 
