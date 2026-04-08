@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using LiveAuction.Application.Common;
 using LiveAuction.Application.Dtos.AuthModel;
-using LiveAuction.Application.Helpers;
 using LiveAuction.Application.Helpers.Templates;
 using LiveAuction.Application.Interfaces;
 using LiveAuction.Application.Interfaces.EmailServiceInterfaces;
@@ -13,13 +12,8 @@ using LiveAuction.Core.Entites;
 using LiveAuction.Core.Entites.AuthEntites;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace LiveAuction.Application.Services
 {

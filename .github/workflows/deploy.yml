@@ -56,6 +56,9 @@ jobs:
                 - .env
               environment:
                 - ASPNETCORE_URLS=http://+:8080
+                - ASPNETCORE_ENVIRONMENT=Production
+              volumes:
+                - ./secrets:/LiveAuction/secrets
           EOF
           
           docker pull ${{ secrets.DOCKER_USERNAME }}/liveauction:v1

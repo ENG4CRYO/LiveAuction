@@ -366,3 +366,5 @@ web.config
 appsettings.Development.json
 appsettings.Production.json
 docker-compose.yml
+firebase-adminsdk.json
+Secrets

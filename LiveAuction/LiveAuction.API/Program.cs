@@ -14,12 +14,28 @@ using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using Serilog;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 SerilogExtension.SetupBootstrapLogger();
 
 try
 {
     Log.Information("Starting Web Application...");
+    string firebaseKeyPath = Path.Combine(Directory.GetCurrentDirectory(), "secrets", "firebase-adminsdk.json");
+
+    if (File.Exists(firebaseKeyPath))
+    {
+        FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.FromFile(firebaseKeyPath)
+        });
+        Console.WriteLine("Firebase App Check Initialized Successfully!");
+    }
+    else
+    {
+        Console.WriteLine($"WARNING: Firebase JSON key not found at {firebaseKeyPath}");
+    }
 
     var builder = WebApplication.CreateBuilder(args);
 
@@ -76,20 +92,21 @@ try
     app.UseSerilogRequestLogging();
 
     app.UseMiddleware<GlobalErrorHandlerMiddleware>();
+    app.UseMiddleware<FirebaseAppCheckMiddleware>();
     app.UseStaticFiles();
     app.UseResponseCompression();
     app.MapOpenApi();
 
     app.MapScalarApiReference(options =>
     {
-        options.WithTitle("LiveAuction API Documentation"); 
+        options.WithTitle("LiveAuction API Documentation");
         options.WithTheme(ScalarTheme.BluePlanet);
         options.Layout = ScalarLayout.Modern;
         options.CustomCss = CssScalar.CustomCss;
 
         options.Authentication = new ScalarAuthenticationOptions
         {
-            PreferredSecuritySchemes = new[] { "Bearer" }
+            PreferredSecuritySchemes = new[] { "Bearer", "AppCheck" }
         };
     });
 
