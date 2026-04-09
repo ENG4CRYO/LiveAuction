@@ -16,7 +16,7 @@ namespace LiveAuction.api.Middlewares
         private static DateTime _keysLastFetched = DateTime.MinValue;
         private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-        private const string ProjectNumber = "1032003656948";
+        private const string ProjectNumber = "620961732274";
         private const string JwksUrl = "https://firebaseappcheck.googleapis.com/v1/jwks";
 
         public FirebaseAppCheckMiddleware(RequestDelegate next, ILogger<FirebaseAppCheckMiddleware> logger, IWebHostEnvironment env)
